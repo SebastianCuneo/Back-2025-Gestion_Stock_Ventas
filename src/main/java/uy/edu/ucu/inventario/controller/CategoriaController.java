@@ -1,67 +1,67 @@
 package uy.edu.ucu.inventario.controller;
 
-import uy.edu.ucu.inventario.entity.Marca;
-import uy.edu.ucu.inventario.service.MarcaService;
+import uy.edu.ucu.inventario.entity.Categoria;
+import uy.edu.ucu.inventario.service.CategoriaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * Controlador REST para la entidad Marca.
- * Proporciona operaciones CRUD sobre las marcas del sistema.
+ * Controlador REST para la entidad Categoria.
+ * Permite realizar operaciones CRUD sobre las categorías de productos.
  */
 @RestController
-@RequestMapping("/api/marcas")
-public class MarcaController {
+@RequestMapping("/api/categorias")
+public class CategoriaController {
 
-    private final MarcaService svc;
+    private final CategoriaService svc;
 
-    public MarcaController(MarcaService svc) {
+    public CategoriaController(CategoriaService svc) {
         this.svc = svc;
     }
 
     /**
-     * Obtener la lista de todas las marcas.
+     * Obtener todas las categorías.
      */
     @GetMapping
-    public List<Marca> listar() {
+    public List<Categoria> listar() {
         return svc.listar();
     }
 
     /**
-     * Obtener una marca por su ID.
+     * Obtener una categoría por su ID.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Marca> get(@PathVariable Long id) {
+    public ResponseEntity<Categoria> get(@PathVariable Long id) {
         return svc.obtener(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     /**
-     * Crear una nueva marca.
+     * Crear una nueva categoría.
      */
     @PostMapping
-    public Marca crear(@RequestBody Marca m) {
-        return svc.guardar(m);
+    public Categoria crear(@RequestBody Categoria c) {
+        return svc.guardar(c);
     }
 
     /**
-     * Actualizar una marca existente.
+     * Actualizar una categoría existente.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Marca> update(@PathVariable Long id, @RequestBody Marca m) {
+    public ResponseEntity<Categoria> update(@PathVariable Long id, @RequestBody Categoria c) {
         return svc.obtener(id)
-                .map(marcaExistente -> {
-                    m.setId(id);
-                    return ResponseEntity.ok(svc.guardar(m));
+                .map(catExistente -> {
+                    c.setId(id);
+                    return ResponseEntity.ok(svc.guardar(c));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
 
     /**
-     * Eliminar una marca por ID si no está asociada a productos.
+     * Eliminar una categoría por ID, si no está en uso por productos.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
@@ -72,7 +72,6 @@ public class MarcaController {
             svc.eliminar(id);
             return ResponseEntity.noContent().build();
         } catch (IllegalStateException ex) {
-            // Devolver mensaje descriptivo al cliente
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }

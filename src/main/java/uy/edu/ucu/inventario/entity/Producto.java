@@ -2,70 +2,99 @@ package uy.edu.ucu.inventario.entity;
 
 import java.math.BigDecimal;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
+/**
+ * Entidad que representa un Producto.
+ * Cada producto tiene una marca y una categoría asociada.
+ */
 @Entity
 @Table(name = "productos")
 public class Producto {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    // === Atributos ===
 
-	@Column(nullable = false, length = 100)
-	private String nombre;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(length = 255)
-	private String descripcion;
+    @Column(nullable = false, length = 100)
+    private String nombre;
 
-	@Column(nullable = false)
-	private BigDecimal precio;
+    @Column(length = 255)
+    private String descripcion;
 
-	// Constructors
-	public Producto() {
-	}
+    @Column(nullable = false)
+    private BigDecimal precio;
 
-	public Producto(String nombre, String descripcion, BigDecimal precio) {
-		this.nombre = nombre;
-		this.descripcion = descripcion;
-		this.precio = precio;
-	}
+    @ManyToOne
+    @JoinColumn(name = "marca_id", nullable = false)
+    private Marca marca;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    @ManyToOne
+    @JoinColumn(name = "categoria_id", nullable = false)
+    private Categoria categoria;
 
-	// Getters & Setters
-	public Long getId() {
-		return id;
-	}
+    // === Constructores ===
 
-	public String getNombre() {
-		return nombre;
-	}
+    public Producto() {
+    }
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
+    public Producto(String nombre, String descripcion, BigDecimal precio, Marca marca, Categoria categoria) {
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.precio = precio;
+        this.marca = marca;
+        this.categoria = categoria;
+    }
 
-	public String getDescripcion() {
-		return descripcion;
-	}
+    // === Getters & Setters ===
 
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public BigDecimal getPrecio() {
-		return precio;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setPrecio(BigDecimal precio) {
-		this.precio = precio;
-	}
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public BigDecimal getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(BigDecimal precio) {
+        this.precio = precio;
+    }
+
+    public Marca getMarca() {
+        return marca;
+    }
+
+    public void setMarca(Marca marca) {
+        this.marca = marca;
+    }
+
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
+    }
 }
