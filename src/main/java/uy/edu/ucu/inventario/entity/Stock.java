@@ -6,7 +6,7 @@ import jakarta.persistence.*;
  * Entidad que representa el stock de un producto en un depósito específico.
  */
 @Entity
-@Table(name = "stocks")
+@Table(name = "stock")
 public class Stock {
 
     // === Atributos ===

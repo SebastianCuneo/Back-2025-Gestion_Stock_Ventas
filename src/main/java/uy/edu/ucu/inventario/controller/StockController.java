@@ -13,7 +13,7 @@ import java.util.List;
  * Permite gestionar la cantidad de productos en depósitos.
  */
 @RestController
-@RequestMapping("/api/stocks")
+@RequestMapping("/api/stock")
 public class StockController {
 
     private final StockService svc;

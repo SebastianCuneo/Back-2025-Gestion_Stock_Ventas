@@ -12,7 +12,7 @@ import java.util.List;
  * Controlador REST para la entidad Venta.
  */
 @RestController
-@RequestMapping("/api/ventas")
+@RequestMapping("/api/venta")
 public class VentaController {
 
     private final VentaService svc;
