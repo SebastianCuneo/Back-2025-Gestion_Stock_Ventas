@@ -2,8 +2,12 @@ package uy.edu.ucu.inventario.controller;
 
 import uy.edu.ucu.inventario.entity.Usuario;
 import uy.edu.ucu.inventario.service.UsuarioService;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
@@ -53,11 +57,32 @@ public class UsuarioController {
 
     // Eliminar usuario
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        // 1) Validación previa: existe el usuario?
         if (!svc.obtener(id).isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        svc.eliminar(id);
-        return ResponseEntity.noContent().build();
+        try {
+            svc.eliminar(id);
+            return ResponseEntity.noContent().build();
+
+        } catch (IllegalStateException ex) {
+            // 400 si hay dependencia en uso
+            return ResponseEntity
+                   .badRequest()
+                   .body(ex.getMessage());
+
+        } catch (EntityNotFoundException ex) {
+            // 404 si no existía justo al eliminar
+            return ResponseEntity
+                   .status(HttpStatus.NOT_FOUND)
+                   .body(ex.getMessage());
+
+        } catch (Exception ex) {
+            // 500 para cualquier otro error
+            return ResponseEntity
+                   .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                   .body("Error interno: " + ex.getMessage());
+        }
     }
 }

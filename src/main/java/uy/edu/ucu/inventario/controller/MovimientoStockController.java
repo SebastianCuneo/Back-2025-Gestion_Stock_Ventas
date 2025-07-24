@@ -3,8 +3,12 @@ package uy.edu.ucu.inventario.controller;
 import uy.edu.ucu.inventario.entity.MovimientoStock;
 import uy.edu.ucu.inventario.service.MovimientoStockService;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
@@ -12,7 +16,7 @@ import java.util.List;
  * Controlador REST para los movimientos de stock.
  */
 @RestController
-@RequestMapping("/api/movimientos")
+@RequestMapping("/api/movimiento")
 public class MovimientoStockController {
 
     private final MovimientoStockService svc;
@@ -49,11 +53,29 @@ public class MovimientoStockController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        // 1) Validación previa: existe el movimiento?
         if (!svc.obtener(id).isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        svc.eliminar(id);
-        return ResponseEntity.noContent().build();
+        try {
+            svc.eliminar(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException ex) {
+            // 404 si no existía justo al eliminar
+            return ResponseEntity
+                   .status(HttpStatus.NOT_FOUND)
+                   .body(ex.getMessage());
+        } catch (DataIntegrityViolationException ex) {
+            // 409 si hay integridad referencial u otros constraints
+            return ResponseEntity
+                   .status(HttpStatus.CONFLICT)
+                   .body("No se puede eliminar el movimiento de stock por integridad de datos.");
+        } catch (Exception ex) {
+            // 500 para cualquier otro error
+            return ResponseEntity
+                   .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                   .body("Error interno: " + ex.getMessage());
+        }
     }
 }

@@ -2,8 +2,13 @@ package uy.edu.ucu.inventario.controller;
 
 import uy.edu.ucu.inventario.entity.Categoria;
 import uy.edu.ucu.inventario.service.CategoriaService;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
@@ -65,14 +70,36 @@ public class CategoriaController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
+        // Validación previa: existe la categoría?
         if (!svc.obtener(id).isPresent()) {
             return ResponseEntity.notFound().build();
         }
         try {
             svc.eliminar(id);
             return ResponseEntity.noContent().build();
+
         } catch (IllegalStateException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            // La categoría está en uso por productos
+            return ResponseEntity
+                    .badRequest()
+                    .body(ex.getMessage());
+
+        } catch (EntityNotFoundException ex) {
+            // Se lanzó tras el delete si no existía (doble chequeo)
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Categoría no encontrada: " + ex.getMessage());
+
+        } catch (DataIntegrityViolationException ex) {
+            // En caso de violaciones de integridad referencial
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body("No se puede eliminar por integridad de datos.");
+
+        } catch (Exception ex) {
+            // Cualquier otro error
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error interno: " + ex.getMessage());
         }
-    }
-}
+    }}

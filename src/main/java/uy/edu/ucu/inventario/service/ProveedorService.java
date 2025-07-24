@@ -5,6 +5,8 @@ import uy.edu.ucu.inventario.repository.ProveedorRepository;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +34,10 @@ public class ProveedorService {
         return repo.save(p);
     }
 
-    public void eliminar(Long id) {
-        repo.deleteById(id);
+    public void eliminar(Long id){
+        //Verificar que el proveedor existe
+        if (!repo.existsById(id)) {
+            throw new EntityNotFoundException("Proveedor con id " + id + " no encontrado");
+        }
     }
 }

@@ -6,6 +6,8 @@ import uy.edu.ucu.inventario.repository.ProductoRepository;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -40,5 +42,10 @@ public class CategoriaService {
             throw new IllegalStateException("No se puede eliminar la categoría porque está en uso por productos.");
         }
         repo.deleteById(id);
+        
+        Optional<Categoria> catOpt = repo.findById(id);
+        if (catOpt.isEmpty()) {
+            throw new EntityNotFoundException("Categoría con id " + id + " no encontrada (check findById).");
+        }
     }
 }

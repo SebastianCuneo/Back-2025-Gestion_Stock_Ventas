@@ -3,7 +3,10 @@ package uy.edu.ucu.inventario.service;
 import uy.edu.ucu.inventario.entity.Stock;
 import uy.edu.ucu.inventario.repository.StockRepository;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +36,17 @@ public class StockService {
     }
 
     public void eliminar(Long id) {
-        repo.deleteById(id);
+        // 1) Verificar que el stock existe
+        if (!repo.existsById(id)) {
+            throw new EntityNotFoundException("Stock con id " + id + " no encontrado");
+        }
+        // 2) Intentar el borrado y capturar dependencias
+        try {
+            repo.deleteById(id);
+        } catch (DataIntegrityViolationException ex) {
+            throw new IllegalStateException(
+                "No se puede eliminar el stock porque está en uso por movimientos o ventas", ex
+            );
+        }
     }
 }

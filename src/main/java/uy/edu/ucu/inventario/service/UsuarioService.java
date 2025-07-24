@@ -4,6 +4,8 @@ import uy.edu.ucu.inventario.entity.Usuario;
 import uy.edu.ucu.inventario.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +34,10 @@ public class UsuarioService {
     }
 
     public void eliminar(Long id) {
-        repo.deleteById(id);
+        // 1) Verificar que el usuario existe
+        if (!repo.existsById(id)) {
+            throw new EntityNotFoundException("Usuario con id " + id + " no encontrado");
+        }
+            repo.deleteById(id);
     }
 }

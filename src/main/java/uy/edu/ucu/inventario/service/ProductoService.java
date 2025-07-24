@@ -3,7 +3,10 @@ package uy.edu.ucu.inventario.service;
 import uy.edu.ucu.inventario.entity.Producto;
 import uy.edu.ucu.inventario.repository.ProductoRepository;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +49,16 @@ public class ProductoService {
      * Eliminar un producto por su ID.
      */
     public void eliminar(Long id) {
-        repo.deleteById(id);
+        // 1) Validación: ¿existe el producto?
+        if (!repo.existsById(id)) {
+            throw new EntityNotFoundException("Producto con id " + id + " no encontrado");
+        }
+        // 2) Intento de borrado
+        try {
+            repo.deleteById(id);
+        } catch (DataIntegrityViolationException ex) {
+            // Re-lanzar para que lo capture el controlador
+            throw ex;
+        }
     }
 }

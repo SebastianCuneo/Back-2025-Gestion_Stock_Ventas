@@ -5,6 +5,9 @@ import uy.edu.ucu.inventario.repository.MarcaRepository;
 import uy.edu.ucu.inventario.repository.ProductoRepository;
 
 import org.springframework.stereotype.Service;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +38,12 @@ public class MarcaService {
         if (productoRepo.existsByMarcaId(id)) {
             throw new IllegalStateException("No se puede eliminar la marca porque tiene productos asociados.");
         }
+        repo.deleteById(id);
+        // 1) Validación previa: existe la marca?
+        if (!repo.existsById(id)) {
+            throw new EntityNotFoundException("Marca con id " + id + " no encontrada");
+        }
+        // 2) Intento de borrado
         repo.deleteById(id);
     }
 }

@@ -5,6 +5,8 @@ import uy.edu.ucu.inventario.repository.MovimientoStockRepository;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +35,9 @@ public class MovimientoStockService {
     }
 
     public void eliminar(Long id) {
+        if (!repo.existsById(id)) {
+            throw new EntityNotFoundException("MovimientoStock con id " + id + " no encontrado");
+        }
         repo.deleteById(id);
     }
 }

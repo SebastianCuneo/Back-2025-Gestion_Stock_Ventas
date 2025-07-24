@@ -5,6 +5,8 @@ import uy.edu.ucu.inventario.repository.VentaRepository;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +35,9 @@ public class VentaService {
     }
 
     public void eliminar(Long id) {
-        repo.deleteById(id);
+    	if (!repo.existsById(id)) {
+            throw new EntityNotFoundException("Venta con id " + id + " no encontrada");
+        }
+    	repo.deleteById(id);
     }
 }

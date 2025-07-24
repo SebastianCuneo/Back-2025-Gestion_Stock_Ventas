@@ -2,8 +2,13 @@ package uy.edu.ucu.inventario.controller;
 
 import uy.edu.ucu.inventario.entity.Marca;
 import uy.edu.ucu.inventario.service.MarcaService;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
@@ -65,15 +70,31 @@ public class MarcaController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
+        // Validación previa: existe la marca?
         if (!svc.obtener(id).isPresent()) {
             return ResponseEntity.notFound().build();
         }
         try {
             svc.eliminar(id);
             return ResponseEntity.noContent().build();
-        } catch (IllegalStateException ex) {
-            // Devolver mensaje descriptivo al cliente
-            return ResponseEntity.badRequest().body(ex.getMessage());
+
+        } catch (EntityNotFoundException ex) {
+            // 404 si no existía justo al eliminar
+            return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ex.getMessage());
+
+        } catch (DataIntegrityViolationException ex) {
+            // 409 si hay restricciones (p.ej. productos referenciando esta marca)
+            return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body("No se puede eliminar la marca por integridad de datos.");
+
+        } catch (Exception ex) {
+            // 500 para cualquier otro error inesperado
+            return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error interno: " + ex.getMessage());
         }
     }
 }
