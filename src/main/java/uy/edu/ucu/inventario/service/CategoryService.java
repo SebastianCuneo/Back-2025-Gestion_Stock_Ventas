@@ -1,28 +1,27 @@
 package uy.edu.ucu.inventario.service;
 
+import uy.edu.ucu.inventario.entity.AuditLog;
 import uy.edu.ucu.inventario.entity.Category;
 import uy.edu.ucu.inventario.repository.CategoryRepository;
 import uy.edu.ucu.inventario.repository.ProductRepository;
 
 import org.springframework.stereotype.Service;
-
 import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service for managing product categories.
- */
 @Service
 public class CategoryService {
 
     private final CategoryRepository repo;
     private final ProductRepository productRepo;
+    private final AuditLogService auditLogService;
 
-    public CategoryService(CategoryRepository repo, ProductRepository productRepo) {
+    public CategoryService(CategoryRepository repo, ProductRepository productRepo, AuditLogService auditLogService) {
         this.repo = repo;
         this.productRepo = productRepo;
+        this.auditLogService = auditLogService;
     }
 
     public List<Category> listAll() {
@@ -34,7 +33,16 @@ public class CategoryService {
     }
 
     public Category save(Category c) {
-        return repo.save(c);
+        Category saved = repo.save(c);
+
+        auditLogService.saveLog(
+            "Category",
+            saved.getId(),
+            (c.getId() == null) ? "CREATE" : "UPDATE",
+            null // username obtenido desde Spring Security en el futuro
+        );
+
+        return saved;
     }
 
     public void delete(Long id) {
@@ -48,5 +56,12 @@ public class CategoryService {
         }
 
         repo.deleteById(id);
+
+        auditLogService.saveLog(
+            "Category",
+            id,
+            "DELETE",
+            null
+        );
     }
 }

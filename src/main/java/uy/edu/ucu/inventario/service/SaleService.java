@@ -2,10 +2,8 @@ package uy.edu.ucu.inventario.service;
 
 import uy.edu.ucu.inventario.entity.Sale;
 import uy.edu.ucu.inventario.repository.SaleRepository;
-
-import org.springframework.stereotype.Service;
-
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,9 +15,11 @@ import java.util.Optional;
 public class SaleService {
 
     private final SaleRepository repo;
+    private final AuditLogService auditLogService;
 
-    public SaleService(SaleRepository repo) {
+    public SaleService(SaleRepository repo, AuditLogService auditLogService) {
         this.repo = repo;
+        this.auditLogService = auditLogService;
     }
 
     public List<Sale> listAll() {
@@ -31,13 +31,31 @@ public class SaleService {
     }
 
     public Sale save(Sale sale) {
-        return repo.save(sale);
+        boolean isNew = (sale.getId() == null);
+        Sale saved = repo.save(sale);
+
+        auditLogService.saveLog(
+            "Sale",
+            saved.getId(),
+            isNew ? "CREATE" : "UPDATE",
+            null
+        );
+
+        return saved;
     }
 
     public void delete(Long id) {
         if (!repo.existsById(id)) {
             throw new EntityNotFoundException("Sale with id " + id + " not found");
         }
+
         repo.deleteById(id);
+
+        auditLogService.saveLog(
+            "Sale",
+            id,
+            "DELETE",
+            null
+        );
     }
 }

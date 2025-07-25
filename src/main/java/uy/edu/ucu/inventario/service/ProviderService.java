@@ -2,10 +2,8 @@ package uy.edu.ucu.inventario.service;
 
 import uy.edu.ucu.inventario.entity.Provider;
 import uy.edu.ucu.inventario.repository.ProviderRepository;
-
-import org.springframework.stereotype.Service;
-
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,9 +15,11 @@ import java.util.Optional;
 public class ProviderService {
 
     private final ProviderRepository repo;
+    private final AuditLogService auditLogService;
 
-    public ProviderService(ProviderRepository repo) {
+    public ProviderService(ProviderRepository repo, AuditLogService auditLogService) {
         this.repo = repo;
+        this.auditLogService = auditLogService;
     }
 
     public List<Provider> listAll() {
@@ -31,13 +31,31 @@ public class ProviderService {
     }
 
     public Provider save(Provider p) {
-        return repo.save(p);
+        boolean isNew = (p.getId() == null);
+        Provider saved = repo.save(p);
+
+        auditLogService.saveLog(
+            "Provider",
+            saved.getId(),
+            isNew ? "CREATE" : "UPDATE",
+            null
+        );
+
+        return saved;
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         if (!repo.existsById(id)) {
             throw new EntityNotFoundException("Provider with id " + id + " not found");
         }
+
         repo.deleteById(id);
+
+        auditLogService.saveLog(
+            "Provider",
+            id,
+            "DELETE",
+            null
+        );
     }
 }

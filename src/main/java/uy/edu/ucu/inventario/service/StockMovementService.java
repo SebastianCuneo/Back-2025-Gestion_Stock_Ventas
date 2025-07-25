@@ -16,9 +16,11 @@ import java.util.Optional;
 public class StockMovementService {
 
     private final StockMovementRepository repo;
+    private final AuditLogService auditLogService;
 
-    public StockMovementService(StockMovementRepository repo) {
+    public StockMovementService(StockMovementRepository repo, AuditLogService auditLogService) {
         this.repo = repo;
+        this.auditLogService = auditLogService;
     }
 
     public List<StockMovement> listAll() {
@@ -30,14 +32,32 @@ public class StockMovementService {
     }
 
     public StockMovement save(StockMovement movement) {
-        return repo.save(movement);
+        boolean isNew = (movement.getId() == null);
+        StockMovement saved = repo.save(movement);
+
+        auditLogService.saveLog(
+            "StockMovement",
+            saved.getId(),
+            isNew ? "CREATE" : "UPDATE",
+            null
+        );
+
+        return saved;
     }
 
     public void delete(Long id) {
         if (!repo.existsById(id)) {
             throw new EntityNotFoundException("Stock movement with id " + id + " not found.");
         }
+
         repo.deleteById(id);
+
+        auditLogService.saveLog(
+            "StockMovement",
+            id,
+            "DELETE",
+            null
+        );
     }
 
     // === Métodos adicionales previstos ===

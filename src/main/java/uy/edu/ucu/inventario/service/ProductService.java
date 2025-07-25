@@ -2,10 +2,8 @@ package uy.edu.ucu.inventario.service;
 
 import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.repository.ProductRepository;
-
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
 import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
@@ -19,9 +17,11 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductRepository repo;
+    private final AuditLogService auditLogService;
 
-    public ProductService(ProductRepository repo) {
+    public ProductService(ProductRepository repo, AuditLogService auditLogService) {
         this.repo = repo;
+        this.auditLogService = auditLogService;
     }
 
     /**
@@ -42,7 +42,17 @@ public class ProductService {
      * Save a new product or update an existing one.
      */
     public Product save(Product p) {
-        return repo.save(p);
+        boolean isNew = (p.getId() == null);
+        Product saved = repo.save(p);
+
+        auditLogService.saveLog(
+            "Product",
+            saved.getId(),
+            isNew ? "CREATE" : "UPDATE",
+            null
+        );
+
+        return saved;
     }
 
     /**
@@ -55,6 +65,12 @@ public class ProductService {
 
         try {
             repo.deleteById(id);
+            auditLogService.saveLog(
+                "Product",
+                id,
+                "DELETE",
+                null
+            );
         } catch (DataIntegrityViolationException ex) {
             throw ex;
         }

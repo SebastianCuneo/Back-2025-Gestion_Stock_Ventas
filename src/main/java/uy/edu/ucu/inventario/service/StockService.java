@@ -18,9 +18,11 @@ import java.util.Optional;
 public class StockService {
 
     private final StockRepository repo;
+    private final AuditLogService auditLogService;
 
-    public StockService(StockRepository repo) {
+    public StockService(StockRepository repo, AuditLogService auditLogService) {
         this.repo = repo;
+        this.auditLogService = auditLogService;
     }
 
     public List<Stock> listAll() {
@@ -32,17 +34,34 @@ public class StockService {
     }
 
     public Stock save(Stock s) {
-        return repo.save(s);
+        boolean isNew = (s.getId() == null);
+        Stock saved = repo.save(s);
+
+        auditLogService.saveLog(
+            "Stock",
+            saved.getId(),
+            isNew ? "CREATE" : "UPDATE",
+            null
+        );
+
+        return saved;
     }
 
     public void delete(Long id) {
-        // 1) Check if stock exists
         if (!repo.existsById(id)) {
             throw new EntityNotFoundException("Stock with id " + id + " not found");
         }
-        // 2) Attempt deletion and catch integrity violations
+
         try {
             repo.deleteById(id);
+
+            auditLogService.saveLog(
+                "Stock",
+                id,
+                "DELETE",
+                null
+            );
+
         } catch (DataIntegrityViolationException ex) {
             throw new IllegalStateException(
                 "Cannot delete stock because it is referenced by other records", ex
