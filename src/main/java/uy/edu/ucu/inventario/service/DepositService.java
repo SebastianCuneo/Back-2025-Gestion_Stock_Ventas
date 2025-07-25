@@ -2,10 +2,8 @@ package uy.edu.ucu.inventario.service;
 
 import uy.edu.ucu.inventario.entity.Deposit;
 import uy.edu.ucu.inventario.repository.DepositRepository;
-
-import org.springframework.stereotype.Service;
-
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,9 +15,11 @@ import java.util.Optional;
 public class DepositService {
 
     private final DepositRepository repo;
+    private final AuditLogService auditLogService;
 
-    public DepositService(DepositRepository repo) {
+    public DepositService(DepositRepository repo, AuditLogService auditLogService) {
         this.repo = repo;
+        this.auditLogService = auditLogService;
     }
 
     public List<Deposit> listAll() {
@@ -31,7 +31,17 @@ public class DepositService {
     }
 
     public Deposit save(Deposit d) {
-        return repo.save(d);
+        boolean isNew = (d.getId() == null);
+        Deposit saved = repo.save(d);
+
+        auditLogService.saveLog(
+            "Deposit",
+            saved.getId(),
+            isNew ? "CREATE" : "UPDATE",
+            null // se completará luego con Spring Security
+        );
+
+        return saved;
     }
 
     public void delete(Long id) {
@@ -39,5 +49,12 @@ public class DepositService {
             throw new EntityNotFoundException("Deposit with id " + id + " not found");
         }
         repo.deleteById(id);
+
+        auditLogService.saveLog(
+            "Deposit",
+            id,
+            "DELETE",
+            null
+        );
     }
 }

@@ -16,9 +16,11 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository repo;
+    private final AuditLogService auditLogService;
 
-    public UserService(UserRepository repo) {
+    public UserService(UserRepository repo, AuditLogService auditLogService) {
         this.repo = repo;
+        this.auditLogService = auditLogService;
     }
 
     public List<User> listAll() {
@@ -30,14 +32,31 @@ public class UserService {
     }
 
     public User save(User user) {
-        return repo.save(user);
+        boolean isNew = (user.getId() == null);
+        User saved = repo.save(user);
+
+        auditLogService.saveLog(
+            "User",
+            saved.getId(),
+            isNew ? "CREATE" : "UPDATE",
+            null
+        );
+
+        return saved;
     }
 
     public void delete(Long id) {
-        // Check if the user exists
         if (!repo.existsById(id)) {
             throw new EntityNotFoundException("User with id " + id + " not found");
         }
+
         repo.deleteById(id);
+
+        auditLogService.saveLog(
+            "User",
+            id,
+            "DELETE",
+            null
+        );
     }
 }

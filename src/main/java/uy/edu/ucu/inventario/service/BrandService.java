@@ -1,13 +1,14 @@
 package uy.edu.ucu.inventario.service;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.stereotype.Service;
+import uy.edu.ucu.inventario.entity.AuditLog;
 import uy.edu.ucu.inventario.entity.Brand;
+import uy.edu.ucu.inventario.entity.User;
 import uy.edu.ucu.inventario.repository.BrandRepository;
 import uy.edu.ucu.inventario.repository.ProductRepository;
 
-import org.springframework.stereotype.Service;
-
-import jakarta.persistence.EntityNotFoundException;
-
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,10 +20,12 @@ public class BrandService {
 
     private final BrandRepository repo;
     private final ProductRepository productRepo;
+    private final AuditLogService auditLogService;
 
-    public BrandService(BrandRepository repo, ProductRepository productRepo) {
+    public BrandService(BrandRepository repo, ProductRepository productRepo, AuditLogService auditLogService) {
         this.repo = repo;
         this.productRepo = productRepo;
+        this.auditLogService = auditLogService;
     }
 
     public List<Brand> listAll() {
@@ -34,7 +37,16 @@ public class BrandService {
     }
 
     public Brand save(Brand brand) {
-        return repo.save(brand);
+        Brand saved = repo.save(brand);
+
+        AuditLog log = new AuditLog();
+        log.setOperation("CREATE_OR_UPDATE_BRAND");
+        log.setTimestamp(LocalDateTime.now());
+        log.setUsername(null); // Se reemplazará por el usuario autenticado con Spring Security
+        log.setDetails("Brand saved: " + brand.getName());
+
+        auditLogService.save(log);
+        return saved;
     }
 
     public void delete(Long id) {
@@ -45,5 +57,13 @@ public class BrandService {
             throw new EntityNotFoundException("Brand with id " + id + " not found.");
         }
         repo.deleteById(id);
+
+        AuditLog log = new AuditLog();
+        log.setOperation("DELETE_BRAND");
+        log.setTimestamp(LocalDateTime.now());
+        log.setUsername(null); // Se reemplazará por el usuario autenticado con Spring Security
+        log.setDetails("Brand deleted with id: " + id);
+
+        auditLogService.save(log);
     }
 }
