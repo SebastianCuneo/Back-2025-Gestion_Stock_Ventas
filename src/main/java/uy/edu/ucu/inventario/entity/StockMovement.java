@@ -25,8 +25,12 @@ public class StockMovement {
     private Product product;
 
     @ManyToOne
-    @JoinColumn(name = "deposit_id", nullable = false)
-    private Deposit deposit;
+    @JoinColumn(name = "origin_deposit_id")
+    private Deposit originDeposit;
+
+    @ManyToOne
+    @JoinColumn(name = "destination_deposit_id")
+    private Deposit destinationDeposit;
 
     @Column(nullable = false)
     private int quantity;
@@ -34,18 +38,20 @@ public class StockMovement {
     @Column(nullable = false)
     private LocalDateTime date;
 
-    // === User ===
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
+    // === Constructores ===
+
     public StockMovement() {
     }
 
-    public StockMovement(MovementType type, Product product, Deposit deposit, int quantity, LocalDateTime date) {
+    public StockMovement(MovementType type, Product product, Deposit originDeposit, Deposit destinationDeposit, int quantity, LocalDateTime date) {
         this.type = type;
         this.product = product;
-        this.deposit = deposit;
+        this.originDeposit = originDeposit;
+        this.destinationDeposit = destinationDeposit;
         this.quantity = quantity;
         this.date = date;
     }
@@ -76,12 +82,20 @@ public class StockMovement {
         this.product = product;
     }
 
-    public Deposit getDeposit() {
-        return deposit;
+    public Deposit getOriginDeposit() {
+        return originDeposit;
     }
 
-    public void setDeposit(Deposit deposit) {
-        this.deposit = deposit;
+    public void setOriginDeposit(Deposit originDeposit) {
+        this.originDeposit = originDeposit;
+    }
+
+    public Deposit getDestinationDeposit() {
+        return destinationDeposit;
+    }
+
+    public void setDestinationDeposit(Deposit destinationDeposit) {
+        this.destinationDeposit = destinationDeposit;
     }
 
     public int getQuantity() {

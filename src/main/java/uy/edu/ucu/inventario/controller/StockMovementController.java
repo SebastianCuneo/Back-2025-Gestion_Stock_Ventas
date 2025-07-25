@@ -1,96 +1,85 @@
 package uy.edu.ucu.inventario.controller;
 
-import uy.edu.ucu.inventario.entity.StockMovement;
-import uy.edu.ucu.inventario.service.StockMovementService;
-
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.persistence.EntityNotFoundException;
+import uy.edu.ucu.inventario.entity.StockMovement;
+import uy.edu.ucu.inventario.enums.MovementType;
+import uy.edu.ucu.inventario.service.StockMovementService;
 
 import java.util.List;
 
-/**
- * REST Controller for stock movements.
- */
 @RestController
 @RequestMapping("/api/stock-movements")
 public class StockMovementController {
 
-    private final StockMovementService svc;
+    private final StockMovementService service;
 
-    public StockMovementController(StockMovementService svc) {
-        this.svc = svc;
+    public StockMovementController(StockMovementService service) {
+        this.service = service;
     }
 
-    /**
-     * Retrieve all stock movements.
-     */
+    // === GET: All movements ===
     @GetMapping
-    public List<StockMovement> list() {
-        return svc.listAll();
+    public ResponseEntity<List<StockMovement>> getAll() {
+        return ResponseEntity.ok(service.listAll());
     }
 
-    /**
-     * Retrieve a stock movement by its ID.
-     */
+    // === GET: By ID ===
     @GetMapping("/{id}")
-    public ResponseEntity<StockMovement> get(@PathVariable Long id) {
-        return svc.getById(id)
+    public ResponseEntity<StockMovement> getById(@PathVariable Long id) {
+        return service.getById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Create a new stock movement.
-     */
-    @PostMapping
-    public StockMovement create(@RequestBody StockMovement m) {
-        return svc.save(m);
+    // === GET: By type ===
+    @GetMapping("/type/{type}")
+    public ResponseEntity<List<StockMovement>> getByType(@PathVariable MovementType type) {
+        return ResponseEntity.ok(service.findByType(type));
     }
 
-    /**
-     * Update an existing stock movement.
-     */
+    // === GET: By origin deposit ===
+    @GetMapping("/origin/{depositId}")
+    public ResponseEntity<List<StockMovement>> getByOriginDeposit(@PathVariable Long depositId) {
+        return ResponseEntity.ok(service.findByOriginDeposit(depositId));
+    }
+
+    // === GET: By destination deposit ===
+    @GetMapping("/destination/{depositId}")
+    public ResponseEntity<List<StockMovement>> getByDestinationDeposit(@PathVariable Long depositId) {
+        return ResponseEntity.ok(service.findByDestinationDeposit(depositId));
+    }
+
+    // === GET: By origin and destination ===
+    @GetMapping("/transfer/{originId}/{destinationId}")
+    public ResponseEntity<List<StockMovement>> getTransfersBetween(
+            @PathVariable Long originId,
+            @PathVariable Long destinationId
+    ) {
+        return ResponseEntity.ok(service.findTransfersBetweenDeposits(originId, destinationId));
+    }
+
+    // === POST: Create ===
+    @PostMapping
+    public ResponseEntity<StockMovement> create(@RequestBody StockMovement movement) {
+        return ResponseEntity.ok(service.save(movement));
+    }
+
+    // === PUT: Update ===
     @PutMapping("/{id}")
-    public ResponseEntity<StockMovement> update(@PathVariable Long id, @RequestBody StockMovement m) {
-        return svc.getById(id)
+    public ResponseEntity<StockMovement> update(@PathVariable Long id, @RequestBody StockMovement updated) {
+        return service.getById(id)
                 .map(existing -> {
-                    m.setId(id);
-                    return ResponseEntity.ok(svc.save(m));
+                    updated.setId(id);
+                    return ResponseEntity.ok(service.save(updated));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Delete a stock movement by ID.
-     */
+    // === DELETE: Delete ===
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        if (!svc.getById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        try {
-            svc.delete(id);
-            return ResponseEntity.noContent().build();
-
-        } catch (EntityNotFoundException ex) {
-            return ResponseEntity
-                   .status(HttpStatus.NOT_FOUND)
-                   .body(ex.getMessage());
-
-        } catch (DataIntegrityViolationException ex) {
-            return ResponseEntity
-                   .status(HttpStatus.CONFLICT)
-                   .body("Cannot delete stock movement due to data integrity constraints.");
-
-        } catch (Exception ex) {
-            return ResponseEntity
-                   .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                   .body("Internal error: " + ex.getMessage());
-        }
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
