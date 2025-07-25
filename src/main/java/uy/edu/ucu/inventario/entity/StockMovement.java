@@ -1,17 +1,24 @@
 package uy.edu.ucu.inventario.entity;
 
 import jakarta.persistence.*;
+import uy.edu.ucu.inventario.enums.MovementType;
+
+import java.time.LocalDateTime;
 
 /**
- * Entity representing the stock of a product in a specific deposit.
+ * Entity representing a stock movement (entry or exit).
  */
 @Entity
-@Table(name = "stock")
-public class Stock {
+@Table(name = "stock_movements")
+public class StockMovement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MovementType type;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
@@ -24,15 +31,23 @@ public class Stock {
     @Column(nullable = false)
     private int quantity;
 
-    // === Constructors ===
+    @Column(nullable = false)
+    private LocalDateTime date;
 
-    public Stock() {
+    // === User ===
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public StockMovement() {
     }
 
-    public Stock(Product product, Deposit deposit, int quantity) {
+    public StockMovement(MovementType type, Product product, Deposit deposit, int quantity, LocalDateTime date) {
+        this.type = type;
         this.product = product;
         this.deposit = deposit;
         this.quantity = quantity;
+        this.date = date;
     }
 
     // === Getters & Setters ===
@@ -43,6 +58,14 @@ public class Stock {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public MovementType getType() {
+        return type;
+    }
+
+    public void setType(MovementType type) {
+        this.type = type;
     }
 
     public Product getProduct() {
@@ -67,5 +90,21 @@ public class Stock {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

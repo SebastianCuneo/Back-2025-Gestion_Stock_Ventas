@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Servicio para la gestión del stock de productos en depósitos.
+ * Service for managing product stock in deposits.
  */
 @Service
 public class StockService {
@@ -23,29 +23,29 @@ public class StockService {
         this.repo = repo;
     }
 
-    public List<Stock> listar() {
+    public List<Stock> listAll() {
         return repo.findAll();
     }
 
-    public Optional<Stock> obtener(Long id) {
+    public Optional<Stock> getById(Long id) {
         return repo.findById(id);
     }
 
-    public Stock guardar(Stock s) {
+    public Stock save(Stock s) {
         return repo.save(s);
     }
 
-    public void eliminar(Long id) {
-        // 1) Verificar que el stock existe
+    public void delete(Long id) {
+        // 1) Check if stock exists
         if (!repo.existsById(id)) {
-            throw new EntityNotFoundException("Stock con id " + id + " no encontrado");
+            throw new EntityNotFoundException("Stock with id " + id + " not found");
         }
-        // 2) Intentar el borrado y capturar dependencias
+        // 2) Attempt deletion and catch integrity violations
         try {
             repo.deleteById(id);
         } catch (DataIntegrityViolationException ex) {
             throw new IllegalStateException(
-                "No se puede eliminar el stock porque está en uso por movimientos o ventas", ex
+                "Cannot delete stock because it is referenced by other records", ex
             );
         }
     }
