@@ -33,13 +33,16 @@ public class CategoryService {
     }
 
     public Category save(Category c) {
+
+        boolean isCreate = (c.getId() == null);
+
         Category saved = repo.save(c);
 
         auditLogService.saveLog(
             "Category",
             saved.getId(),
-            (c.getId() == null) ? "CREATE" : "UPDATE",
-            null // username obtenido desde Spring Security en el futuro
+            isCreate ? "CREATE" : "UPDATE",
+            null
         );
 
         return saved;
