@@ -84,6 +84,7 @@ public class BrandController {
                 .body(ex.getMessage());
 
         } catch (DataIntegrityViolationException ex) {
+        	System.out.println("Error de Data Integrity "+ex);
             return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body("Cannot delete brand due to data integrity constraints.");

@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import uy.edu.ucu.inventario.entity.AuditLog;
 import uy.edu.ucu.inventario.entity.Brand;
+import uy.edu.ucu.inventario.entity.Category;
 import uy.edu.ucu.inventario.entity.User;
 import uy.edu.ucu.inventario.repository.BrandRepository;
 import uy.edu.ucu.inventario.repository.ProductRepository;
@@ -36,34 +37,33 @@ public class BrandService {
         return repo.findById(id);
     }
 
-    public Brand save(Brand brand) {
-        Brand saved = repo.save(brand);
-
-        AuditLog log = new AuditLog();
-        log.setOperation("CREATE_OR_UPDATE_BRAND");
-        log.setTimestamp(LocalDateTime.now());
-        log.setUsername(null); // Se reemplazará por el usuario autenticado con Spring Security
-        log.setDetails("Brand saved: " + brand.getName());
-
-        auditLogService.save(log);
+    public Brand save(Brand b) {
+        boolean isCreate = (b.getId() == null);
+        Brand saved = repo.save(b);
+        
+            auditLogService.saveLog(
+                "Brand", 
+                saved.getId(), 
+                isCreate ? "CREATE" : "UPDATE", 
+                "Brand name: " + saved.getName()
+            );
         return saved;
     }
-
     public void delete(Long id) {
-        if (productRepo.existsByBrandId(id)) {
+    	if (productRepo.existsByBrandId(id)) {
             throw new IllegalStateException("Cannot delete brand because it has associated products.");
         }
         if (!repo.existsById(id)) {
-            throw new EntityNotFoundException("Brand with id " + id + " not found.");
+            throw new EntityNotFoundException("Brand with id " + id + " not found");
         }
         repo.deleteById(id);
-
-        AuditLog log = new AuditLog();
-        log.setOperation("DELETE_BRAND");
-        log.setTimestamp(LocalDateTime.now());
-        log.setUsername(null); // Se reemplazará por el usuario autenticado con Spring Security
-        log.setDetails("Brand deleted with id: " + id);
-
-        auditLogService.save(log);
+        
+        auditLogService.saveLog(
+                "Category",
+                id,
+                "DELETE",
+                null
+            );
     }
+    
 }
