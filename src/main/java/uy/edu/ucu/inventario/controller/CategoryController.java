@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST Controller for the Category entity.
@@ -26,81 +28,99 @@ public class CategoryController {
         this.svc = svc;
     }
 
-    /**
-     * Get all categories.
-     */
     @GetMapping
-    public List<Category> list() {
-        return svc.listAll();
+    public ResponseEntity<Map<String, Object>> list() {
+        List<Category> categories = svc.listAll();
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", categories);
+        response.put("message", "Category list retrieved successfully.");
+        return ResponseEntity.ok(response);
     }
 
-    /**
-     * Get a category by its ID.
-     */
     @GetMapping("/{id}")
-    public ResponseEntity<Category> get(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+
         return svc.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(category -> {
+                    response.put("success", true);
+                    response.put("data", category);
+                    response.put("message", "Category found.");
+                    return ResponseEntity.ok(response);
+                })
+                .orElseGet(() -> {
+                    response.put("success", false);
+                    response.put("error", "Category not found.");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                });
     }
 
-    /**
-     * Create a new category.
-     */
     @PostMapping
-    public Category create(@RequestBody Category c) {
-        return svc.save(c);
+    public ResponseEntity<Map<String, Object>> create(@RequestBody Category c) {
+        Category saved = svc.save(c);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", saved);
+        response.put("message", "Category created successfully.");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * Update an existing category.
-     */
     @PutMapping("/{id}")
-    public ResponseEntity<Category> update(@PathVariable Long id, @RequestBody Category c) {
+    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Category c) {
+        Map<String, Object> response = new HashMap<>();
+
         return svc.getById(id)
                 .map(existing -> {
                     c.setId(id);
-                    return ResponseEntity.ok(svc.save(c));
+                    Category updated = svc.save(c);
+                    response.put("success", true);
+                    response.put("data", updated);
+                    response.put("message", "Category updated successfully.");
+                    return ResponseEntity.ok(response);
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> {
+                    response.put("success", false);
+                    response.put("error", "Category not found.");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                });
     }
 
-    /**
-     * Delete a category by ID, only if it's not used by products.
-     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        // Pre-validation: does the category exist?
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+
         if (!svc.getById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
+            response.put("success", false);
+            response.put("error", "Category not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
+
         try {
             svc.delete(id);
-            return ResponseEntity.noContent().build();
+            response.put("success", true);
+            response.put("message", "Category deleted successfully.");
+            return ResponseEntity.ok(response);
 
         } catch (IllegalStateException ex) {
-            // The category is in use by products
-            return ResponseEntity
-                    .badRequest()
-                    .body(ex.getMessage());
+            response.put("success", false);
+            response.put("error", ex.getMessage());
+            return ResponseEntity.badRequest().body(response);
 
         } catch (EntityNotFoundException ex) {
-            // Triggered after delete if not found (double check)
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Category not found: " + ex.getMessage());
+            response.put("success", false);
+            response.put("error", "Category not found: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
         } catch (DataIntegrityViolationException ex) {
-            // Referential integrity violation
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body("Cannot delete due to data integrity.");
+            response.put("success", false);
+            response.put("error", "Cannot delete due to data integrity.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
 
         } catch (Exception ex) {
-            // Any other error
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Internal error: " + ex.getMessage());
+            response.put("success", false);
+            response.put("error", "Internal error: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }
