@@ -1,5 +1,6 @@
 package uy.edu.ucu.inventario.service;
 
+import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.entity.Stock;
 import uy.edu.ucu.inventario.repository.StockRepository;
 
@@ -19,10 +20,12 @@ public class StockService {
 
     private final StockRepository repo;
     private final AuditLogService auditLogService;
+    private final ProductService productService;
 
-    public StockService(StockRepository repo, AuditLogService auditLogService) {
+    public StockService(StockRepository repo, AuditLogService auditLogService, ProductService productService) {
         this.repo = repo;
         this.auditLogService = auditLogService;
+        this.productService = productService;
     }
 
     public List<Stock> listAll() {
@@ -35,6 +38,17 @@ public class StockService {
 
     public Stock save(Stock s) {
         boolean isNew = (s.getId() == null);
+
+        if (isNew) {
+            boolean existsInDeposit = repo.existsByProductIdAndDepositId(
+                s.getProduct().getId(), s.getDeposit().getId()
+            );
+
+            if (!existsInDeposit) {
+                productService.incrementDepositsCount(s.getProduct());
+            }
+        }
+
         Stock saved = repo.save(s);
 
         auditLogService.saveLog(
@@ -48,12 +62,18 @@ public class StockService {
     }
 
     public void delete(Long id) {
-        if (!repo.existsById(id)) {
+        Optional<Stock> stockOpt = repo.findById(id);
+
+        if (stockOpt.isEmpty()) {
             throw new EntityNotFoundException("Stock with id " + id + " not found");
         }
 
+        Stock stock = stockOpt.get();
+
         try {
             repo.deleteById(id);
+
+            productService.decrementDepositsCount(stock.getProduct());
 
             auditLogService.saveLog(
                 "Stock",

@@ -1,6 +1,7 @@
 package uy.edu.ucu.inventario.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * Entity representing a Brand.
@@ -25,9 +26,19 @@ public class Brand {
     @Column(length = 100)
     private String countryOfOrigin;
 
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private int associatedProductCount = 0;
+
     // === Constructors ===
 
-    public Brand() {
+    public Brand() {}
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 
     // === Getters & Setters ===
@@ -62,5 +73,27 @@ public class Brand {
 
     public void setCountryOfOrigin(String countryOfOrigin) {
         this.countryOfOrigin = countryOfOrigin;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public int getAssociatedProductCount() {
+        return associatedProductCount;
+    }
+
+    public void setAssociatedProductCount(int associatedProductCount) {
+        this.associatedProductCount = associatedProductCount;
+    }
+
+    public void incrementAssociatedProductCount() {
+        this.associatedProductCount++;
+    }
+
+    public void decrementAssociatedProductCount() {
+        if (this.associatedProductCount > 0) {
+            this.associatedProductCount--;
+        }
     }
 }

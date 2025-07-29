@@ -2,14 +2,10 @@ package uy.edu.ucu.inventario.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
-import uy.edu.ucu.inventario.entity.AuditLog;
 import uy.edu.ucu.inventario.entity.Brand;
-import uy.edu.ucu.inventario.entity.Category;
-import uy.edu.ucu.inventario.entity.User;
 import uy.edu.ucu.inventario.repository.BrandRepository;
 import uy.edu.ucu.inventario.repository.ProductRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,33 +33,48 @@ public class BrandService {
         return repo.findById(id);
     }
 
-    public Brand save(Brand b) {
-        boolean isCreate = (b.getId() == null);
-        Brand saved = repo.save(b);
-        
-            auditLogService.saveLog(
-                "Brand", 
-                saved.getId(), 
-                isCreate ? "CREATE" : "UPDATE", 
+    public Brand save(Brand brand) {
+        boolean isCreate = (brand.getId() == null);
+        if (isCreate) {
+            brand.setAssociatedProductCount(0); // Inicializamos contador si es nuevo
+        }
+        Brand saved = repo.save(brand);
+
+        auditLogService.saveLog(
+                "Brand",
+                saved.getId(),
+                isCreate ? "CREATE" : "UPDATE",
                 "Brand name: " + saved.getName()
-            );
+        );
+
         return saved;
     }
+
     public void delete(Long id) {
-    	if (productRepo.existsByBrandId(id)) {
+        if (productRepo.existsByBrandId(id)) {
             throw new IllegalStateException("Cannot delete brand because it has associated products.");
         }
         if (!repo.existsById(id)) {
-            throw new EntityNotFoundException("Brand with id " + id + " not found");
+            throw new EntityNotFoundException("Brand with id " + id + " not found.");
         }
+
         repo.deleteById(id);
-        
+
         auditLogService.saveLog(
-                "Category",
+                "Brand",
                 id,
                 "DELETE",
-                null
-            );
+                "Brand deleted with id: " + id
+        );
     }
-    
+
+    public void incrementProductCount(Brand brand) {
+        brand.incrementAssociatedProductCount();
+        repo.save(brand);
+    }
+
+    public void decrementProductCount(Brand brand) {
+        brand.decrementAssociatedProductCount();
+        repo.save(brand);
+    }
 }

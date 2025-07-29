@@ -1,7 +1,6 @@
 package uy.edu.ucu.inventario.entity;
 
 import java.math.BigDecimal;
-
 import jakarta.persistence.*;
 
 /**
@@ -35,6 +34,9 @@ public class Product {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @Column(nullable = false)
+    private int depositsCount = 0;
+
     // === Constructors ===
 
     public Product() {
@@ -46,6 +48,7 @@ public class Product {
         this.price = price;
         this.brand = brand;
         this.category = category;
+        this.depositsCount = 0;
     }
 
     // === Getters & Setters ===
@@ -96,5 +99,23 @@ public class Product {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public int getDepositsCount() {
+        return depositsCount;
+    }
+
+    public void setDepositsCount(int depositsCount) {
+        this.depositsCount = depositsCount;
+    }
+
+    public void incrementDepositsCount() {
+        this.depositsCount++;
+    }
+
+    public void decrementDepositsCount() {
+        if (this.depositsCount > 0) {
+            this.depositsCount--;
+        }
     }
 }

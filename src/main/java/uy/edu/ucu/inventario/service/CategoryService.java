@@ -1,6 +1,5 @@
 package uy.edu.ucu.inventario.service;
 
-import uy.edu.ucu.inventario.entity.AuditLog;
 import uy.edu.ucu.inventario.entity.Category;
 import uy.edu.ucu.inventario.repository.CategoryRepository;
 import uy.edu.ucu.inventario.repository.ProductRepository;
@@ -33,8 +32,10 @@ public class CategoryService {
     }
 
     public Category save(Category c) {
-
         boolean isCreate = (c.getId() == null);
+        if (isCreate) {
+            c.setAssociatedProductCount(0); // Inicializamos contador si es nueva
+        }
 
         Category saved = repo.save(c);
 
@@ -42,7 +43,7 @@ public class CategoryService {
             "Category",
             saved.getId(),
             isCreate ? "CREATE" : "UPDATE",
-            null
+            null // Username más adelante desde Spring Security
         );
 
         return saved;
@@ -66,5 +67,15 @@ public class CategoryService {
             "DELETE",
             null
         );
+    }
+
+    public void incrementProductCount(Category category) {
+        category.incrementAssociatedProductCount();
+        repo.save(category);
+    }
+
+    public void decrementProductCount(Category category) {
+        category.decrementAssociatedProductCount();
+        repo.save(category);
     }
 }
