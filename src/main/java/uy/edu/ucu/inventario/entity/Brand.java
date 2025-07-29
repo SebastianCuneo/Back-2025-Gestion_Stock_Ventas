@@ -96,4 +96,17 @@ public class Brand {
             this.associatedProductCount--;
         }
     }
+    
+    @Override
+    public String toString() {
+        return "Brand{" +
+               "id=" + id +
+               ", name='" + name + '\'' +
+               ", description='" + description + '\'' +
+               ", countryOfOrigin='" + countryOfOrigin + '\'' +
+               ", createdAt=" + createdAt +
+               ", associatedProductCount=" + associatedProductCount +
+               '}';
+    }
+
 }

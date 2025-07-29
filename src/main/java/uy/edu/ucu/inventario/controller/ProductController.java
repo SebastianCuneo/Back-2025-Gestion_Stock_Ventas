@@ -53,7 +53,7 @@ public class ProductController {
     public ResponseEntity<Map<String, Object>> create(@RequestBody Product p) {
         Product saved = svc.save(p);
         Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
+        response.put("success", true); 
         response.put("data", saved);
         response.put("message", "Product created successfully.");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

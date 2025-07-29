@@ -70,6 +70,7 @@ public class BrandService {
 
     public void incrementProductCount(Brand brand) {
         brand.incrementAssociatedProductCount();
+        System.out.println("-BRAND SERVICE- "+brand);
         repo.save(brand);
     }
 
