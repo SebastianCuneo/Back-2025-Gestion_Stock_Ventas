@@ -19,6 +19,9 @@ public class Category {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Column(nullable = false)
+    private int associatedProductCount = 0;
+
     // === Constructors ===
 
     public Category() {
@@ -44,5 +47,23 @@ public class Category {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getAssociatedProductCount() {
+        return associatedProductCount;
+    }
+
+    public void setAssociatedProductCount(int associatedProductCount) {
+        this.associatedProductCount = associatedProductCount;
+    }
+
+    public void incrementAssociatedProductCount() {
+        this.associatedProductCount++;
+    }
+
+    public void decrementAssociatedProductCount() {
+        if (this.associatedProductCount > 0) {
+            this.associatedProductCount--;
+        }
     }
 }

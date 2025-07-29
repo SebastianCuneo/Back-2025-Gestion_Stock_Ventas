@@ -7,12 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-/**
- * REST Controller for the Product entity.
- * Provides CRUD operations for products in the system.
- */
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -23,67 +21,89 @@ public class ProductController {
         this.svc = svc;
     }
 
-    /**
-     * Get the list of all products.
-     */
     @GetMapping
-    public List<Product> list() {
-        return svc.listAll();
+    public ResponseEntity<Map<String, Object>> list() {
+        List<Product> products = svc.listAll();
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", products);
+        response.put("message", "Product list retrieved successfully.");
+        return ResponseEntity.ok(response);
     }
 
-    /**
-     * Get a product by its ID.
-     */
     @GetMapping("/{id}")
-    public ResponseEntity<Product> get(@PathVariable Long id) {
-        return svc.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
+    public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
 
-    /**
-     * Create a new product.
-     */
-    @PostMapping
-    public Product create(@RequestBody Product p) {
-        return svc.save(p);
-    }
-
-    /**
-     * Update an existing product.
-     */
-    @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody Product p) {
         return svc.getById(id)
-                .map(existingProduct -> {
-                    p.setId(id);
-                    return ResponseEntity.ok(svc.save(p));
+                .map(product -> {
+                    response.put("success", true);
+                    response.put("data", product);
+                    response.put("message", "Product found.");
+                    return ResponseEntity.ok(response);
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> {
+                    response.put("success", false);
+                    response.put("error", "Product not found.");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                });
     }
 
-    /**
-     * Delete a product by ID.
-     */
+    @PostMapping
+    public ResponseEntity<Map<String, Object>> create(@RequestBody Product p) {
+        Product saved = svc.save(p);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", saved);
+        response.put("message", "Product created successfully.");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Product p) {
+        Map<String, Object> response = new HashMap<>();
+
+        return svc.getById(id)
+                .map(existing -> {
+                    p.setId(id);
+                    Product updated = svc.save(p);
+                    response.put("success", true);
+                    response.put("data", updated);
+                    response.put("message", "Product updated successfully.");
+                    return ResponseEntity.ok(response);
+                })
+                .orElseGet(() -> {
+                    response.put("success", false);
+                    response.put("error", "Product not found.");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                });
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+
         if (!svc.getById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
+            response.put("success", false);
+            response.put("error", "Product not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
         try {
             svc.delete(id);
-            return ResponseEntity.noContent().build();
+            response.put("success", true);
+            response.put("message", "Product deleted successfully.");
+            return ResponseEntity.ok(response);
 
         } catch (IllegalStateException ex) {
-            return ResponseEntity
-                   .badRequest()
-                   .body(ex.getMessage());
+            response.put("success", false);
+            response.put("error", ex.getMessage());
+            return ResponseEntity.badRequest().body(response);
 
         } catch (Exception ex) {
-            return ResponseEntity
-                   .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                   .body("Internal error: " + ex.getMessage());
+            response.put("success", false);
+            response.put("error", "Internal error: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }

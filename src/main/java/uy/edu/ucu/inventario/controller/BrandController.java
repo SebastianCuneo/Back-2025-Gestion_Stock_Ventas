@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST Controller for the Brand entity.
@@ -26,72 +28,92 @@ public class BrandController {
         this.svc = svc;
     }
 
-    /**
-     * Retrieve all brands.
-     */
     @GetMapping
-    public List<Brand> list() {
-        return svc.listAll();
+    public ResponseEntity<Map<String, Object>> list() {
+        List<Brand> brands = svc.listAll();
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", brands);
+        response.put("message", "Brands list retrieved successfully.");
+        return ResponseEntity.ok(response);
     }
 
-    /**
-     * Retrieve a brand by its ID.
-     */
     @GetMapping("/{id}")
-    public ResponseEntity<Brand> get(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
         return svc.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(brand -> {
+                    response.put("success", true);
+                    response.put("data", brand);
+                    response.put("message", "Brand found.");
+                    return ResponseEntity.ok(response);
+                })
+                .orElseGet(() -> {
+                    response.put("success", false);
+                    response.put("error", "Brand not found.");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                });
     }
 
-    /**
-     * Create a new brand.
-     */
     @PostMapping
-    public Brand create(@RequestBody Brand b) {
-        return svc.save(b);
+    public ResponseEntity<Map<String, Object>> create(@RequestBody Brand b) {
+        Brand saved = svc.save(b);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", saved);
+        response.put("message", "Brand created successfully.");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * Update an existing brand.
-     */
     @PutMapping("/{id}")
-    public ResponseEntity<Brand> update(@PathVariable Long id, @RequestBody Brand b) {
+    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Brand b) {
+        Map<String, Object> response = new HashMap<>();
         return svc.getById(id)
                 .map(existing -> {
                     b.setId(id);
-                    return ResponseEntity.ok(svc.save(b));
+                    Brand updated = svc.save(b);
+                    response.put("success", true);
+                    response.put("data", updated);
+                    response.put("message", "Brand updated successfully.");
+                    return ResponseEntity.ok(response);
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> {
+                    response.put("success", false);
+                    response.put("error", "Brand not found.");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                });
     }
 
-    /**
-     * Delete a brand by ID if not associated with products.
-     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+
         if (!svc.getById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
+            response.put("success", false);
+            response.put("error", "Brand not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
         try {
             svc.delete(id);
-            return ResponseEntity.noContent().build();
+            response.put("success", true);
+            response.put("message", "Brand deleted successfully.");
+            return ResponseEntity.ok(response);
 
         } catch (EntityNotFoundException ex) {
-            return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
+            response.put("success", false);
+            response.put("error", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
         } catch (DataIntegrityViolationException ex) {
-            return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body("Cannot delete brand due to data integrity constraints.");
+            response.put("success", false);
+            response.put("error", "Cannot delete brand due to data integrity constraints.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
 
         } catch (Exception ex) {
-            return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Internal error: " + ex.getMessage());
+            response.put("success", false);
+            response.put("error", "Internal error: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }

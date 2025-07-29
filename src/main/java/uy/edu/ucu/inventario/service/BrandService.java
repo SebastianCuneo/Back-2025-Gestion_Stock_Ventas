@@ -4,7 +4,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import uy.edu.ucu.inventario.entity.AuditLog;
 import uy.edu.ucu.inventario.entity.Brand;
-import uy.edu.ucu.inventario.entity.User;
 import uy.edu.ucu.inventario.repository.BrandRepository;
 import uy.edu.ucu.inventario.repository.ProductRepository;
 
@@ -37,13 +36,17 @@ public class BrandService {
     }
 
     public Brand save(Brand brand) {
+        boolean isNew = (brand.getId() == null);
+        if (isNew) {
+            brand.setAssociatedProductCount(0); // inicializar
+        }
         Brand saved = repo.save(brand);
 
         AuditLog log = new AuditLog();
-        log.setOperation("CREATE_OR_UPDATE_BRAND");
+        log.setOperation(isNew ? "CREATE_BRAND" : "UPDATE_BRAND");
         log.setTimestamp(LocalDateTime.now());
-        log.setUsername(null); // Se reemplazará por el usuario autenticado con Spring Security
-        log.setDetails("Brand saved: " + brand.getName());
+        log.setUsername(null); // Spring Security más adelante
+        log.setDetails("Brand " + (isNew ? "created: " : "updated: ") + brand.getName());
 
         auditLogService.save(log);
         return saved;
@@ -61,9 +64,19 @@ public class BrandService {
         AuditLog log = new AuditLog();
         log.setOperation("DELETE_BRAND");
         log.setTimestamp(LocalDateTime.now());
-        log.setUsername(null); // Se reemplazará por el usuario autenticado con Spring Security
+        log.setUsername(null);
         log.setDetails("Brand deleted with id: " + id);
 
         auditLogService.save(log);
+    }
+
+    public void incrementProductCount(Brand brand) {
+        brand.incrementAssociatedProductCount();
+        repo.save(brand);
+    }
+
+    public void decrementProductCount(Brand brand) {
+        brand.decrementAssociatedProductCount();
+        repo.save(brand);
     }
 }

@@ -33,12 +33,17 @@ public class CategoryService {
     }
 
     public Category save(Category c) {
+        boolean isNew = (c.getId() == null);
+        if (isNew) {
+            c.setAssociatedProductCount(0); // inicializamos contador
+        }
+
         Category saved = repo.save(c);
 
         auditLogService.saveLog(
             "Category",
             saved.getId(),
-            (c.getId() == null) ? "CREATE" : "UPDATE",
+            isNew ? "CREATE" : "UPDATE",
             null // username obtenido desde Spring Security en el futuro
         );
 
@@ -63,5 +68,15 @@ public class CategoryService {
             "DELETE",
             null
         );
+    }
+
+    public void incrementProductCount(Category category) {
+        category.incrementAssociatedProductCount();
+        repo.save(category);
+    }
+
+    public void decrementProductCount(Category category) {
+        category.decrementAssociatedProductCount();
+        repo.save(category);
     }
 }
