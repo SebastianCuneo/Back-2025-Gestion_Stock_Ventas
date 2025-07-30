@@ -1,6 +1,7 @@
 package uy.edu.ucu.inventario.controller;
 
 import uy.edu.ucu.inventario.entity.Sale;
+import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.service.SaleService;
 
 import org.springframework.http.HttpStatus;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityNotFoundException;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * REST Controller for the Sale entity.
@@ -25,56 +26,124 @@ public class SalesController {
     }
 
     @GetMapping
-    public List<Sale> list() {
-        return svc.listAll();
+    public ResponseEntity<Map<String, Object>> list() {
+        List<Sale> sales = svc.listAll();
+        long totalCount = svc.getTotalCount();
+
+        List<Map<String, Object>> transformed = new ArrayList<>();
+        for (Sale sale : sales) {
+            transformed.add(transformSale(sale));
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("totalCount", totalCount);
+        response.put("data", transformed);
+        response.put("message", "Sales list retrieved successfully.");
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Sale> get(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
         return svc.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(sale -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", true);
+                    response.put("data", transformSale(sale));
+                    response.put("message", "Sale found.");
+                    return ResponseEntity.ok(response);
+                })
+                .orElseGet(() -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", false);
+                    response.put("error", "Sale not found.");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                });
     }
 
     @PostMapping
-    public Sale create(@RequestBody Sale s) {
-        return svc.save(s);
+    public ResponseEntity<Map<String, Object>> create(@RequestBody Sale s) {
+        Sale saved = svc.save(s);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", transformSale(saved));
+        response.put("message", "Sale created successfully.");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Sale> update(@PathVariable Long id, @RequestBody Sale s) {
+    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Sale s) {
         return svc.getById(id)
                 .map(existing -> {
                     s.setId(id);
-                    return ResponseEntity.ok(svc.save(s));
+                    Sale updated = svc.save(s);
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", true);
+                    response.put("data", transformSale(updated));
+                    response.put("message", "Sale updated successfully.");
+                    return ResponseEntity.ok(response);
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", false);
+                    response.put("error", "Sale not found.");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                });
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+
         if (!svc.getById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
+            response.put("success", false);
+            response.put("error", "Sale not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
         try {
             svc.delete(id);
-            return ResponseEntity.noContent().build();
+            response.put("success", true);
+            response.put("message", "Sale deleted successfully.");
+            return ResponseEntity.ok(response);
 
         } catch (IllegalStateException ex) {
-            return ResponseEntity
-                   .badRequest()
-                   .body(ex.getMessage());
+            response.put("success", false);
+            response.put("error", ex.getMessage());
+            return ResponseEntity.badRequest().body(response);
 
         } catch (EntityNotFoundException ex) {
-            return ResponseEntity
-                   .status(HttpStatus.NOT_FOUND)
-                   .body(ex.getMessage());
+            response.put("success", false);
+            response.put("error", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
         } catch (Exception ex) {
-            return ResponseEntity
-                   .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                   .body("Internal error: " + ex.getMessage());
+            response.put("success", false);
+            response.put("error", "Internal error: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    private Map<String, Object> transformSale(Sale s) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", s.getId());
+        map.put("date", s.getDate());
+        map.put("total", s.getTotal());
+        map.put("paymentMethod", s.getPaymentMethod());
+        map.put("reseller", s.getReseller());
+
+        List<Map<String, Object>> productList = new ArrayList<>();
+        for (Product p : s.getProduct()) {
+            Map<String, Object> pMap = new HashMap<>();
+            pMap.put("id", p.getId());
+            pMap.put("name", p.getName());
+            pMap.put("description", p.getDescription());
+            pMap.put("price", p.getPurchasePrice());
+            pMap.put("price", p.getSalePrice());
+            productList.add(pMap);
+        }
+
+        map.put("product", productList);
+        return map;
     }
 }
