@@ -10,10 +10,10 @@ import java.util.List;
 @Service
 public class AuditLogService {
 
-    private final AuditLogRepository repo;
+    private final AuditLogRepository auditLogRepository;
 
-    public AuditLogService(AuditLogRepository repo) {
-        this.repo = repo;
+    public AuditLogService(AuditLogRepository auditLogRepository) {
+        this.auditLogRepository = auditLogRepository;
     }
 
     public AuditLog saveLog(String entityName, Long entityId, String operation, String user) {
@@ -23,15 +23,14 @@ public class AuditLogService {
         log.setOperation(operation);
         log.setUsername(user);
         log.setTimestamp(LocalDateTime.now());
-        return repo.save(log);
+        return auditLogRepository.save(log);
     }
 
     public List<AuditLog> listAll() {
-        return repo.findAll();
-    }
-    
-    public AuditLog save(AuditLog log) {
-        return repo.save(log);
+        return auditLogRepository.findAll();
     }
 
+    public AuditLog save(AuditLog log) {
+        return auditLogRepository.save(log);
+    }
 }

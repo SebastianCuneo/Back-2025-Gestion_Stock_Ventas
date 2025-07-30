@@ -19,18 +19,18 @@ import java.util.Map;
  * Manages the quantity of products in deposits.
  */
 @RestController
-@RequestMapping("/api/stocks") // se pluraliza en inglés para ser consistente
-public class StocksController {
+@RequestMapping("/api/stock")
+public class StockController {
 
-    private final StockService svc;
+    private final StockService stockService;
 
-    public StocksController(StockService svc) {
-        this.svc = svc;
+    public StockController(StockService stockService) {
+        this.stockService = stockService;
     }
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> list() {
-        List<Stock> stocks = svc.listAll();
+        List<Stock> stocks = stockService.listAll();
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("data", stocks);
@@ -41,7 +41,7 @@ public class StocksController {
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
-        return svc.getById(id)
+        return stockService.getById(id)
                 .map(stock -> {
                     response.put("success", true);
                     response.put("data", stock);
@@ -56,8 +56,8 @@ public class StocksController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> create(@RequestBody Stock s) {
-        Stock saved = svc.save(s);
+    public ResponseEntity<Map<String, Object>> create(@RequestBody Stock stock) {
+        Stock saved = stockService.save(stock);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("data", saved);
@@ -66,12 +66,12 @@ public class StocksController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Stock s) {
+    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Stock stock) {
         Map<String, Object> response = new HashMap<>();
-        return svc.getById(id)
+        return stockService.getById(id)
                 .map(existing -> {
-                    s.setId(id);
-                    Stock updated = svc.save(s);
+                    stock.setId(id);
+                    Stock updated = stockService.save(stock);
                     response.put("success", true);
                     response.put("data", updated);
                     response.put("message", "Stock updated successfully.");
@@ -88,14 +88,14 @@ public class StocksController {
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
 
-        if (!svc.getById(id).isPresent()) {
+        if (!stockService.getById(id).isPresent()) {
             response.put("success", false);
             response.put("error", "Stock not found.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
         try {
-            svc.delete(id);
+            stockService.delete(id);
             response.put("success", true);
             response.put("message", "Stock deleted successfully.");
             return ResponseEntity.ok(response);

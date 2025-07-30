@@ -1,7 +1,7 @@
 package uy.edu.ucu.inventario.controller;
 
-import uy.edu.ucu.inventario.entity.Deposit;
-import uy.edu.ucu.inventario.service.DepositService;
+import uy.edu.ucu.inventario.entity.Provider;
+import uy.edu.ucu.inventario.service.ProviderService;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -13,138 +13,126 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.*;
 
 /**
- * REST Controller for managing Deposits.
+ * REST Controller for the Provider entity.
  */
 @RestController
-@RequestMapping("/api/deposits")
-public class DepositsController {
+@RequestMapping("/api/provider")
+public class ProviderController {
 
-    private final DepositService svc;
+    private final ProviderService providerService;
 
-    public DepositsController(DepositService svc) {
-        this.svc = svc;
+    public ProviderController(ProviderService providerService) {
+        this.providerService = providerService;
     }
 
-    /**
-     * Get all deposits.
-     */
     @GetMapping
     public ResponseEntity<Map<String, Object>> list() {
-        List<Deposit> deposits = svc.listAll();
+        List<Provider> providers = providerService.listAll();
         List<Map<String, Object>> transformed = new ArrayList<>();
 
-        for (Deposit d : deposits) {
-            transformed.add(transformDeposit(d));
+        for (Provider provider : providers) {
+            transformed.add(transformProvider(provider));
         }
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("data", transformed);
-        response.put("message", "Deposit list retrieved successfully.");
+        response.put("message", "Providers list retrieved successfully.");
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Get a deposit by its ID.
-     */
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
-        return svc.getById(id)
-                .map(deposit -> {
+        return providerService.getById(id)
+                .map(provider -> {
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
-                    response.put("data", transformDeposit(deposit));
-                    response.put("message", "Deposit found.");
+                    response.put("data", transformProvider(provider));
+                    response.put("message", "Provider found.");
                     return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> {
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", false);
-                    response.put("error", "Deposit not found.");
+                    response.put("error", "Provider not found.");
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
                 });
     }
 
-    /**
-     * Create a new deposit.
-     */
     @PostMapping
-    public ResponseEntity<Map<String, Object>> create(@RequestBody Deposit d) {
-        Deposit saved = svc.save(d);
+    public ResponseEntity<Map<String, Object>> create(@RequestBody Provider provider) {
+        Provider saved = providerService.save(provider);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("data", transformDeposit(saved));
-        response.put("message", "Deposit created successfully.");
+        response.put("data", transformProvider(saved));
+        response.put("message", "Provider created successfully.");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * Update an existing deposit.
-     */
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Deposit d) {
-        return svc.getById(id)
+    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Provider provider) {
+        return providerService.getById(id)
                 .map(existing -> {
-                    d.setId(id);
-                    Deposit updated = svc.save(d);
+                    provider.setId(id);
+                    Provider updated = providerService.save(provider);
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
-                    response.put("data", transformDeposit(updated));
-                    response.put("message", "Deposit updated successfully.");
+                    response.put("data", transformProvider(updated));
+                    response.put("message", "Provider updated successfully.");
                     return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> {
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", false);
-                    response.put("error", "Deposit not found.");
+                    response.put("error", "Provider not found.");
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
                 });
     }
 
-    /**
-     * Delete a deposit by ID, handling integrity exceptions.
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-
-        if (!svc.getById(id).isPresent()) {
+        if (!providerService.getById(id).isPresent()) {
+            Map<String, Object> response = new HashMap<>();
             response.put("success", false);
-            response.put("error", "Deposit not found.");
+            response.put("error", "Provider not found.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
         try {
-            svc.delete(id);
+            providerService.delete(id);
+            Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "Deposit deleted successfully.");
+            response.put("message", "Provider deleted successfully.");
             return ResponseEntity.ok(response);
 
         } catch (EntityNotFoundException ex) {
+            Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("error", ex.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
         } catch (DataIntegrityViolationException ex) {
+            Map<String, Object> response = new HashMap<>();
             response.put("success", false);
-            response.put("error", "Cannot delete deposit due to data integrity constraints.");
+            response.put("error", "Cannot delete provider due to data integrity constraints.");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
 
         } catch (Exception ex) {
+            Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("error", "Internal error: " + ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
-    private Map<String, Object> transformDeposit(Deposit d) {
+    private Map<String, Object> transformProvider(Provider provider) {
         Map<String, Object> map = new HashMap<>();
-        map.put("id", d.getId());
-        map.put("name", d.getName());
-        map.put("location", d.getLocation());
-        map.put("description", d.getDescription());
-        map.put("productCount", d.getProductCount());
-        map.put("associatedDate", d.getAssociatedDate());
+        map.put("id", provider.getId());
+        map.put("name", provider.getName());
+        map.put("email", provider.getEmail());
+        map.put("phone", provider.getPhone());
+        map.put("address", provider.getAddress());
+        map.put("associatedDate", provider.getAssociatedDate());
         return map;
     }
 }

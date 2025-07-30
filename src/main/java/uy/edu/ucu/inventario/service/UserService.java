@@ -15,25 +15,25 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    private final UserRepository repo;
+    private final UserRepository userRepository;
     private final AuditLogService auditLogService;
 
-    public UserService(UserRepository repo, AuditLogService auditLogService) {
-        this.repo = repo;
+    public UserService(UserRepository userRepository, AuditLogService auditLogService) {
+        this.userRepository = userRepository;
         this.auditLogService = auditLogService;
     }
 
     public List<User> listAll() {
-        return repo.findAll();
+        return userRepository.findAll();
     }
 
     public Optional<User> getById(Long id) {
-        return repo.findById(id);
+        return userRepository.findById(id);
     }
 
     public User save(User user) {
         boolean isNew = (user.getId() == null);
-        User saved = repo.save(user);
+        User saved = userRepository.save(user);
 
         auditLogService.saveLog(
             "User",
@@ -46,11 +46,11 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        if (!repo.existsById(id)) {
+        if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException("User with id " + id + " not found");
         }
 
-        repo.deleteById(id);
+        userRepository.deleteById(id);
 
         auditLogService.saveLog(
             "User",

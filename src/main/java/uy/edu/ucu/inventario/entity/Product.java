@@ -11,15 +11,14 @@ import java.math.BigDecimal;
 @Table(name = "products")
 public class Product {
 
-    // === Embedded classes ===
+    // === Embedded class ===
 
     @Embeddable
     public static class MonetaryValue {
         private String currency;
         private BigDecimal value;
 
-        public MonetaryValue() {
-        }
+        public MonetaryValue() {}
 
         public MonetaryValue(String currency, BigDecimal value) {
             this.currency = currency;

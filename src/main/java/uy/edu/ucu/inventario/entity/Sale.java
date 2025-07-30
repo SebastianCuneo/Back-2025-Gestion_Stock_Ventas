@@ -37,7 +37,7 @@ public class Sale {
         joinColumns = @JoinColumn(name = "sale_id"),
         inverseJoinColumns = @JoinColumn(name = "product_id")
     )
-    private List<Product> product;
+    private List<Product> products;
 
     @Transient
     private Long totalCount;
@@ -46,12 +46,12 @@ public class Sale {
 
     public Sale() {}
 
-    public Sale(LocalDateTime date, BigDecimal total, PaymentMethod paymentMethod, String reseller, List<Product> product) {
+    public Sale(LocalDateTime date, BigDecimal total, PaymentMethod paymentMethod, String reseller, List<Product> products) {
         this.date = date;
         this.total = total;
         this.paymentMethod = paymentMethod;
         this.reseller = reseller;
-        this.product = product;
+        this.products = products;
     }
 
     // === Getters and Setters ===
@@ -96,12 +96,12 @@ public class Sale {
         this.reseller = reseller;
     }
 
-    public List<Product> getProduct() {
-        return product;
+    public List<Product> getProducts() {
+        return products;
     }
 
-    public void setProduct(List<Product> product) {
-        this.product = product;
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 
     public Long getTotalCount() {

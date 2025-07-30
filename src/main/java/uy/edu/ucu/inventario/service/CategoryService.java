@@ -13,36 +13,36 @@ import java.util.Optional;
 @Service
 public class CategoryService {
 
-    private final CategoryRepository repo;
-    private final ProductRepository productRepo;
+    private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
     private final AuditLogService auditLogService;
 
-    public CategoryService(CategoryRepository repo, ProductRepository productRepo, AuditLogService auditLogService) {
-        this.repo = repo;
-        this.productRepo = productRepo;
+    public CategoryService(CategoryRepository categoryRepository, ProductRepository productRepository, AuditLogService auditLogService) {
+        this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
         this.auditLogService = auditLogService;
     }
 
     public List<Category> listAll() {
-        return repo.findAll();
+        return categoryRepository.findAll();
     }
 
     public Optional<Category> getById(Long id) {
-        return repo.findById(id);
+        return categoryRepository.findById(id);
     }
 
-    public Category save(Category c) {
-        boolean isCreate = (c.getId() == null);
-        if (isCreate) {
-            c.setAssociatedProductCount(0); // Inicializamos contador si es nueva
+    public Category save(Category category) {
+        boolean isNew = (category.getId() == null);
+        if (isNew) {
+            category.setAssociatedProductCount(0); // Inicializamos contador si es nueva
         }
 
-        Category saved = repo.save(c);
+        Category saved = categoryRepository.save(category);
 
         auditLogService.saveLog(
             "Category",
             saved.getId(),
-            isCreate ? "CREATE" : "UPDATE",
+            isNew ? "CREATE" : "UPDATE",
             null // Username más adelante desde Spring Security
         );
 
@@ -50,16 +50,16 @@ public class CategoryService {
     }
 
     public void delete(Long id) {
-        Optional<Category> catOpt = repo.findById(id);
-        if (catOpt.isEmpty()) {
+        Optional<Category> categoryOptional = categoryRepository.findById(id);
+        if (categoryOptional.isEmpty()) {
             throw new EntityNotFoundException("Category with id " + id + " not found.");
         }
 
-        if (productRepo.existsByCategoryId(id)) {
+        if (productRepository.existsByCategoryId(id)) {
             throw new IllegalStateException("Cannot delete category because it is used by products.");
         }
 
-        repo.deleteById(id);
+        categoryRepository.deleteById(id);
 
         auditLogService.saveLog(
             "Category",
@@ -71,11 +71,11 @@ public class CategoryService {
 
     public void incrementProductCount(Category category) {
         category.incrementAssociatedProductCount();
-        repo.save(category);
+        categoryRepository.save(category);
     }
 
     public void decrementProductCount(Category category) {
         category.decrementAssociatedProductCount();
-        repo.save(category);
+        categoryRepository.save(category);
     }
 }

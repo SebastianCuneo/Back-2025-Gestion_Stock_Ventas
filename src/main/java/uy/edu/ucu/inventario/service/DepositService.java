@@ -15,31 +15,31 @@ import java.util.Optional;
 @Service
 public class DepositService {
 
-    private final DepositRepository repo;
+    private final DepositRepository depositRepository;
     private final AuditLogService auditLogService;
 
-    public DepositService(DepositRepository repo, AuditLogService auditLogService) {
-        this.repo = repo;
+    public DepositService(DepositRepository depositRepository, AuditLogService auditLogService) {
+        this.depositRepository = depositRepository;
         this.auditLogService = auditLogService;
     }
 
     public List<Deposit> listAll() {
-        return repo.findAll();
+        return depositRepository.findAll();
     }
 
     public Optional<Deposit> getById(Long id) {
-        return repo.findById(id);
+        return depositRepository.findById(id);
     }
 
-    public Deposit save(Deposit d) {
-        boolean isNew = (d.getId() == null);
+    public Deposit save(Deposit deposit) {
+        boolean isNew = (deposit.getId() == null);
 
         if (isNew) {
-            d.setProductCount(0); // inicializa contador de productos
-            d.setAssociatedDate(LocalDateTime.now()); // registra la fecha de creación
+            deposit.setProductCount(0); // inicializa contador de productos
+            deposit.setAssociatedDate(LocalDateTime.now()); // registra la fecha de creación
         }
 
-        Deposit saved = repo.save(d);
+        Deposit saved = depositRepository.save(deposit);
 
         auditLogService.saveLog(
             "Deposit",
@@ -52,10 +52,10 @@ public class DepositService {
     }
 
     public void delete(Long id) {
-        if (!repo.existsById(id)) {
+        if (!depositRepository.existsById(id)) {
             throw new EntityNotFoundException("Deposit with id " + id + " not found");
         }
-        repo.deleteById(id);
+        depositRepository.deleteById(id);
 
         auditLogService.saveLog(
             "Deposit",
@@ -67,13 +67,13 @@ public class DepositService {
 
     public void incrementProductCount(Deposit deposit) {
         deposit.setProductCount(deposit.getProductCount() + 1);
-        repo.save(deposit);
+        depositRepository.save(deposit);
     }
 
     public void decrementProductCount(Deposit deposit) {
         if (deposit.getProductCount() > 0) {
             deposit.setProductCount(deposit.getProductCount() - 1);
-            repo.save(deposit);
+            depositRepository.save(deposit);
         }
     }
 }

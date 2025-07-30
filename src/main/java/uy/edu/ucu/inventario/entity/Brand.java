@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entity representing a Brand.
+ * Entity representing a brand.
  * A brand can be associated with multiple products.
  */
 @Entity
@@ -41,7 +41,7 @@ public class Brand {
         this.createdAt = LocalDateTime.now();
     }
 
-    // === Getters & Setters ===
+    // === Getters and Setters ===
 
     public Long getId() {
         return id;

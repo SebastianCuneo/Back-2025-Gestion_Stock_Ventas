@@ -3,7 +3,7 @@ package uy.edu.ucu.inventario.entity;
 import jakarta.persistence.*;
 
 /**
- * Entity representing a User of the system.
+ * Entity representing a user of the system.
  */
 @Entity
 @Table(name = "users")
@@ -32,8 +32,7 @@ public class User {
 
     // === Constructors ===
 
-    public User() {
-    }
+    public User() {}
 
     public User(String firstName, String lastName, String email, String password, String phone) {
         this.firstName = firstName;

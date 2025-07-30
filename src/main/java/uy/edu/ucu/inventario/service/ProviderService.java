@@ -15,30 +15,30 @@ import java.util.Optional;
 @Service
 public class ProviderService {
 
-    private final ProviderRepository repo;
+    private final ProviderRepository providerRepository;
     private final AuditLogService auditLogService;
 
-    public ProviderService(ProviderRepository repo, AuditLogService auditLogService) {
-        this.repo = repo;
+    public ProviderService(ProviderRepository providerRepository, AuditLogService auditLogService) {
+        this.providerRepository = providerRepository;
         this.auditLogService = auditLogService;
     }
 
     public List<Provider> listAll() {
-        return repo.findAll();
+        return providerRepository.findAll();
     }
 
     public Optional<Provider> getById(Long id) {
-        return repo.findById(id);
+        return providerRepository.findById(id);
     }
 
-    public Provider save(Provider p) {
-        boolean isNew = (p.getId() == null);
+    public Provider save(Provider provider) {
+        boolean isNew = (provider.getId() == null);
 
         if (isNew) {
-            p.setAssociatedDate(LocalDateTime.now());
+            provider.setAssociatedDate(LocalDateTime.now());
         }
 
-        Provider saved = repo.save(p);
+        Provider saved = providerRepository.save(provider);
 
         auditLogService.saveLog(
             "Provider",
@@ -51,11 +51,11 @@ public class ProviderService {
     }
 
     public void delete(Long id) {
-        if (!repo.existsById(id)) {
+        if (!providerRepository.existsById(id)) {
             throw new EntityNotFoundException("Provider with id " + id + " not found");
         }
 
-        repo.deleteById(id);
+        providerRepository.deleteById(id);
 
         auditLogService.saveLog(
             "Provider",

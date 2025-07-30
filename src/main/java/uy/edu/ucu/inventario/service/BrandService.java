@@ -15,22 +15,22 @@ import java.util.Optional;
 @Service
 public class BrandService {
 
-    private final BrandRepository repo;
-    private final ProductRepository productRepo;
+    private final BrandRepository brandRepository;
+    private final ProductRepository productRepository;
     private final AuditLogService auditLogService;
 
-    public BrandService(BrandRepository repo, ProductRepository productRepo, AuditLogService auditLogService) {
-        this.repo = repo;
-        this.productRepo = productRepo;
+    public BrandService(BrandRepository brandRepository, ProductRepository productRepository, AuditLogService auditLogService) {
+        this.brandRepository = brandRepository;
+        this.productRepository = productRepository;
         this.auditLogService = auditLogService;
     }
 
     public List<Brand> listAll() {
-        return repo.findAll();
+        return brandRepository.findAll();
     }
 
     public Optional<Brand> getById(Long id) {
-        return repo.findById(id);
+        return brandRepository.findById(id);
     }
 
     public Brand save(Brand brand) {
@@ -38,7 +38,7 @@ public class BrandService {
         if (isCreate) {
             brand.setAssociatedProductCount(0); // Inicializamos contador si es nuevo
         }
-        Brand saved = repo.save(brand);
+        Brand saved = brandRepository.save(brand);
 
         auditLogService.saveLog(
                 "Brand",
@@ -51,14 +51,14 @@ public class BrandService {
     }
 
     public void delete(Long id) {
-        if (productRepo.existsByBrandId(id)) {
+        if (productRepository.existsByBrandId(id)) {
             throw new IllegalStateException("Cannot delete brand because it has associated products.");
         }
-        if (!repo.existsById(id)) {
+        if (!brandRepository.existsById(id)) {
             throw new EntityNotFoundException("Brand with id " + id + " not found.");
         }
 
-        repo.deleteById(id);
+        brandRepository.deleteById(id);
 
         auditLogService.saveLog(
                 "Brand",
@@ -70,12 +70,11 @@ public class BrandService {
 
     public void incrementProductCount(Brand brand) {
         brand.incrementAssociatedProductCount();
-        System.out.println("-BRAND SERVICE- "+brand);
-        repo.save(brand);
+        brandRepository.save(brand);
     }
 
     public void decrementProductCount(Brand brand) {
         brand.decrementAssociatedProductCount();
-        repo.save(brand);
+        brandRepository.save(brand);
     }
 }
