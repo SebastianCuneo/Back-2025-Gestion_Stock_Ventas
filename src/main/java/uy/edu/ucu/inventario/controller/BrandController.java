@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityNotFoundException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * REST Controller for the Brand entity.
@@ -31,24 +29,31 @@ public class BrandController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> list() {
         List<Brand> brands = svc.listAll();
+        List<Map<String, Object>> transformed = new ArrayList<>();
+
+        for (Brand b : brands) {
+            transformed.add(transformBrand(b));
+        }
+
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("data", brands);
+        response.put("data", transformed);
         response.put("message", "Brands list retrieved successfully.");
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
         return svc.getById(id)
                 .map(brand -> {
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
-                    response.put("data", brand);
+                    response.put("data", transformBrand(brand));
                     response.put("message", "Brand found.");
                     return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> {
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", false);
                     response.put("error", "Brand not found.");
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -60,24 +65,25 @@ public class BrandController {
         Brand saved = svc.save(b);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("data", saved);
+        response.put("data", transformBrand(saved));
         response.put("message", "Brand created successfully.");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Brand b) {
-        Map<String, Object> response = new HashMap<>();
         return svc.getById(id)
                 .map(existing -> {
                     b.setId(id);
                     Brand updated = svc.save(b);
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
-                    response.put("data", updated);
+                    response.put("data", transformBrand(updated));
                     response.put("message", "Brand updated successfully.");
                     return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> {
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", false);
                     response.put("error", "Brand not found.");
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -115,5 +121,16 @@ public class BrandController {
             response.put("error", "Internal error: " + ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    private Map<String, Object> transformBrand(Brand b) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", b.getId());
+        map.put("name", b.getName());
+        map.put("description", b.getDescription());
+        map.put("country", b.getCountryOfOrigin());
+        map.put("createdAt", b.getCreatedAt());
+        map.put("associatedProductCount", b.getAssociatedProductCount());
+        return map;
     }
 }
