@@ -35,7 +35,13 @@ public class CategoryService {
 
     public Category save(Category category) {
         boolean isNew = (category.getId() == null);
+
         if (isNew) {
+            // Validar que no exista otra categoría con el mismo nombre
+            if (categoryRepository.findByNameIgnoreCase(category.getName()).isPresent()) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Category with that name already exists.");
+            }
+
             category.setAssociatedProductCount(0); // inicializamos contador
         }
 

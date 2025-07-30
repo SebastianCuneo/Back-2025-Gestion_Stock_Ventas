@@ -33,6 +33,14 @@ public class UserService {
 
     public User save(User user) {
         boolean isNew = (user.getId() == null);
+
+        if (isNew && userRepository.existsByEmailIgnoreCase(user.getEmail())) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "A user with that email already exists."
+            );
+        }
+
         User saved = userRepository.save(user);
 
         auditLogService.saveLog(

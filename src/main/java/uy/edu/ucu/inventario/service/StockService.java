@@ -50,10 +50,15 @@ public class StockService {
                 stock.getProduct().getId(), stock.getDeposit().getId()
             );
 
-            if (!existsInDeposit) {
-                productService.incrementDepositsCount(stock.getProduct());
-                depositService.incrementProductCount(stock.getDeposit());
+            if (existsInDeposit) {
+                throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "This product already has stock in the selected deposit."
+                );
             }
+
+            productService.incrementDepositsCount(stock.getProduct());
+            depositService.incrementProductCount(stock.getDeposit());
         }
 
         Stock saved = stockRepository.save(stock);
