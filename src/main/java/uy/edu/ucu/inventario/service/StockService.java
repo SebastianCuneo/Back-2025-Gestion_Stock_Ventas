@@ -4,8 +4,9 @@ import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.entity.Stock;
 import uy.edu.ucu.inventario.repository.StockRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +72,7 @@ public class StockService {
         Optional<Stock> stockOpt = stockRepository.findById(id);
 
         if (stockOpt.isEmpty()) {
-            throw new EntityNotFoundException("Stock with id " + id + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Stock with id " + id + " not found");
         }
 
         Stock stock = stockOpt.get();
@@ -90,8 +91,10 @@ public class StockService {
             );
 
         } catch (DataIntegrityViolationException ex) {
-            throw new IllegalStateException(
-                "Cannot delete stock because it is referenced by other records", ex
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Cannot delete stock because it is referenced by other records",
+                ex
             );
         }
     }

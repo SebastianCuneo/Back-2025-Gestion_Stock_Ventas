@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import java.util.*;
 
 /**
@@ -93,34 +91,20 @@ public class SaleController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
-        if (!saleService.getById(id).isPresent()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("error", "Sale not found.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
+        Map<String, Object> response = new HashMap<>();
 
         try {
             saleService.delete(id);
-            Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Sale deleted successfully.");
             return ResponseEntity.ok(response);
 
         } catch (IllegalStateException ex) {
-            Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("error", ex.getMessage());
             return ResponseEntity.badRequest().body(response);
 
-        } catch (EntityNotFoundException ex) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("error", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-
         } catch (Exception ex) {
-            Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("error", "Internal error: " + ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

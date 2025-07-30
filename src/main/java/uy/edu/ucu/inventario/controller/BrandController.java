@@ -2,20 +2,13 @@ package uy.edu.ucu.inventario.controller;
 
 import uy.edu.ucu.inventario.entity.Brand;
 import uy.edu.ucu.inventario.service.BrandService;
-
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import java.util.*;
 
-/**
- * REST Controller for the Brand entity.
- * Provides CRUD operations for system brands.
- */
 @RestController
 @RequestMapping("/api/brand")
 public class BrandController {
@@ -94,22 +87,11 @@ public class BrandController {
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
 
-        if (!brandService.getById(id).isPresent()) {
-            response.put("success", false);
-            response.put("error", "Brand not found.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-
         try {
             brandService.delete(id);
             response.put("success", true);
             response.put("message", "Brand deleted successfully.");
             return ResponseEntity.ok(response);
-
-        } catch (EntityNotFoundException ex) {
-            response.put("success", false);
-            response.put("error", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
         } catch (DataIntegrityViolationException ex) {
             response.put("success", false);

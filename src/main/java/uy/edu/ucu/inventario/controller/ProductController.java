@@ -86,28 +86,19 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
-        if (!productService.getById(id).isPresent()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("error", "Product not found.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-
+        Map<String, Object> response = new HashMap<>();
         try {
             productService.delete(id);
-            Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Product deleted successfully.");
             return ResponseEntity.ok(response);
 
         } catch (IllegalStateException ex) {
-            Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("error", ex.getMessage());
             return ResponseEntity.badRequest().body(response);
 
         } catch (Exception ex) {
-            Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("error", "Internal error: " + ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

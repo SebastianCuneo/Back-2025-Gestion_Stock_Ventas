@@ -7,15 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * REST Controller for user management.
- */
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -26,7 +21,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    // Get all users
     @GetMapping
     public ResponseEntity<Map<String, Object>> list() {
         List<User> users = userService.listAll();
@@ -37,7 +31,6 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // Get user by ID
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
         return userService.getById(id)
@@ -63,7 +56,6 @@ public class UserController {
                 });
     }
 
-    // Create new user
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(@RequestBody User user) {
         User saved = userService.save(user);
@@ -74,7 +66,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // Update existing user
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody User user) {
         return userService.getById(id)
@@ -95,25 +86,12 @@ public class UserController {
                 });
     }
 
-    // Delete user
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        if (!userService.getById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        try {
-            userService.delete(id);
-            return ResponseEntity.noContent().build();
-
-        } catch (IllegalStateException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-
-        } catch (EntityNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal error: " + ex.getMessage());
-        }
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
+        userService.delete(id);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "User deleted successfully.");
+        return ResponseEntity.ok(response);
     }
 }

@@ -2,8 +2,9 @@ package uy.edu.ucu.inventario.service;
 
 import uy.edu.ucu.inventario.entity.Deposit;
 import uy.edu.ucu.inventario.repository.DepositRepository;
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,8 +54,9 @@ public class DepositService {
 
     public void delete(Long id) {
         if (!depositRepository.existsById(id)) {
-            throw new EntityNotFoundException("Deposit with id " + id + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Deposit with id " + id + " not found.");
         }
+
         depositRepository.deleteById(id);
 
         auditLogService.saveLog(

@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import java.util.*;
 
 /**
@@ -25,9 +23,6 @@ public class DepositController {
         this.depositService = depositService;
     }
 
-    /**
-     * Get all deposits.
-     */
     @GetMapping
     public ResponseEntity<Map<String, Object>> list() {
         List<Deposit> deposits = depositService.listAll();
@@ -44,9 +39,6 @@ public class DepositController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Get a deposit by its ID.
-     */
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
         return depositService.getById(id)
@@ -65,9 +57,6 @@ public class DepositController {
                 });
     }
 
-    /**
-     * Create a new deposit.
-     */
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(@RequestBody Deposit deposit) {
         Deposit saved = depositService.save(deposit);
@@ -78,9 +67,6 @@ public class DepositController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * Update an existing deposit.
-     */
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Deposit deposit) {
         return depositService.getById(id)
@@ -101,29 +87,15 @@ public class DepositController {
                 });
     }
 
-    /**
-     * Delete a deposit by ID, handling integrity exceptions.
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
-
-        if (!depositService.getById(id).isPresent()) {
-            response.put("success", false);
-            response.put("error", "Deposit not found.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
 
         try {
             depositService.delete(id);
             response.put("success", true);
             response.put("message", "Deposit deleted successfully.");
             return ResponseEntity.ok(response);
-
-        } catch (EntityNotFoundException ex) {
-            response.put("success", false);
-            response.put("error", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
         } catch (DataIntegrityViolationException ex) {
             response.put("success", false);

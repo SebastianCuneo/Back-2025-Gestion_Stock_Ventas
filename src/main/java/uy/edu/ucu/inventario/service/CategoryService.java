@@ -4,8 +4,9 @@ import uy.edu.ucu.inventario.entity.Category;
 import uy.edu.ucu.inventario.repository.CategoryRepository;
 import uy.edu.ucu.inventario.repository.ProductRepository;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,13 +51,12 @@ public class CategoryService {
     }
 
     public void delete(Long id) {
-        Optional<Category> categoryOptional = categoryRepository.findById(id);
-        if (categoryOptional.isEmpty()) {
-            throw new EntityNotFoundException("Category with id " + id + " not found.");
+        if (!categoryRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category with id " + id + " not found.");
         }
 
         if (productRepository.existsByCategoryId(id)) {
-            throw new IllegalStateException("Cannot delete category because it is used by products.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot delete category because it is used by products.");
         }
 
         categoryRepository.deleteById(id);
