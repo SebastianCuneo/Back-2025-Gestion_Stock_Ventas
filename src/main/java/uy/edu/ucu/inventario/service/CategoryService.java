@@ -1,6 +1,5 @@
 package uy.edu.ucu.inventario.service;
 
-import uy.edu.ucu.inventario.entity.AuditLog;
 import uy.edu.ucu.inventario.entity.Category;
 import uy.edu.ucu.inventario.repository.CategoryRepository;
 import uy.edu.ucu.inventario.repository.ProductRepository;
@@ -42,7 +41,7 @@ public class CategoryService {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Category with that name already exists.");
             }
 
-            category.setAssociatedProductCount(0); // inicializamos contador
+            category.setAssociatedProductCount(0); // Inicializamos contador si es nueva
         }
 
         Category saved = categoryRepository.save(category);
@@ -51,7 +50,7 @@ public class CategoryService {
             "Category",
             saved.getId(),
             isNew ? "CREATE" : "UPDATE",
-            null // username obtenido desde Spring Security en el futuro
+            null // Username más adelante desde Spring Security
         );
 
         return saved;
