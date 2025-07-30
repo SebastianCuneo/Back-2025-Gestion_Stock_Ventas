@@ -35,6 +35,10 @@ public class ProviderService {
     public Provider save(Provider provider) {
         boolean isNew = (provider.getId() == null);
 
+        if (isNew && providerRepository.findByNameIgnoreCase(provider.getName()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Provider with name '" + provider.getName() + "' already exists.");
+        }
+
         if (isNew) {
             provider.setAssociatedDate(LocalDateTime.now());
         }
@@ -45,7 +49,7 @@ public class ProviderService {
             "Provider",
             saved.getId(),
             isNew ? "CREATE" : "UPDATE",
-            null
+            "Provider name: " + saved.getName()
         );
 
         return saved;
@@ -62,7 +66,7 @@ public class ProviderService {
             "Provider",
             id,
             "DELETE",
-            null
+            "Provider deleted with id: " + id
         );
     }
 }

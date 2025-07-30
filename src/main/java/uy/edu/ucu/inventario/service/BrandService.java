@@ -35,16 +35,23 @@ public class BrandService {
     }
 
     public Brand save(Brand brand) {
-        boolean isCreate = (brand.getId() == null);
-        if (isCreate) {
+        boolean isNew = (brand.getId() == null);
+
+        // Validación: no permitir crear si ya existe una con el mismo nombre
+        if (isNew && brandRepository.findByNameIgnoreCase(brand.getName()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A brand with the name '" + brand.getName() + "' already exists.");
+        }
+
+        if (isNew) {
             brand.setAssociatedProductCount(0); // Inicializamos contador si es nuevo
         }
+
         Brand saved = brandRepository.save(brand);
 
         auditLogService.saveLog(
                 "Brand",
                 saved.getId(),
-                isCreate ? "CREATE" : "UPDATE",
+                isNew ? "CREATE" : "UPDATE",
                 "Brand name: " + saved.getName()
         );
 

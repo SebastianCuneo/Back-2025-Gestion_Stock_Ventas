@@ -4,6 +4,7 @@ import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.entity.Brand;
 import uy.edu.ucu.inventario.entity.Category;
 import uy.edu.ucu.inventario.repository.ProductRepository;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,11 @@ public class ProductService {
 
     public Product save(Product product) {
         boolean isNew = (product.getId() == null);
+
+        if (isNew && productRepository.findByNameIgnoreCase(product.getName()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Product with name '" + product.getName() + "' already exists.");
+        }
+
         Product saved = productRepository.save(product);
 
         if (isNew) {
@@ -62,19 +68,17 @@ public class ProductService {
             "Product",
             saved.getId(),
             isNew ? "CREATE" : "UPDATE",
-            null
+            "Product name: " + saved.getName()
         );
 
         return saved;
     }
 
     public void delete(Long id) {
-        Optional<Product> productOpt = productRepository.findById(id);
-        if (productOpt.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product with id " + id + " not found");
-        }
+        Product product = productRepository.findById(id).orElseThrow(() ->
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "Product with id " + id + " not found.")
+        );
 
-        Product product = productOpt.get();
         try {
             productRepository.deleteById(id);
 
@@ -85,7 +89,7 @@ public class ProductService {
                 "Product",
                 id,
                 "DELETE",
-                null
+                "Product deleted: " + product.getName()
             );
         } catch (DataIntegrityViolationException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot delete product due to related records.");

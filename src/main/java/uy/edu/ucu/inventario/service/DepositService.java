@@ -35,6 +35,10 @@ public class DepositService {
     public Deposit save(Deposit deposit) {
         boolean isNew = (deposit.getId() == null);
 
+        if (isNew && depositRepository.findByNameIgnoreCase(deposit.getName()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Deposit with name '" + deposit.getName() + "' already exists.");
+        }
+
         if (isNew) {
             deposit.setProductCount(0); // inicializa contador de productos
             deposit.setAssociatedDate(LocalDateTime.now()); // registra la fecha de creación
@@ -46,16 +50,16 @@ public class DepositService {
             "Deposit",
             saved.getId(),
             isNew ? "CREATE" : "UPDATE",
-            null
+            "Deposit name: " + saved.getName()
         );
 
         return saved;
     }
 
     public void delete(Long id) {
-        if (!depositRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Deposit with id " + id + " not found.");
-        }
+        Deposit deposit = depositRepository.findById(id).orElseThrow(() ->
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "Deposit with id " + id + " not found.")
+        );
 
         depositRepository.deleteById(id);
 
@@ -63,7 +67,7 @@ public class DepositService {
             "Deposit",
             id,
             "DELETE",
-            null
+            "Deleted deposit: " + deposit.getName()
         );
     }
 

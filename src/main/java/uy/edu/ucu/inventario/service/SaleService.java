@@ -50,7 +50,7 @@ public class SaleService {
             "Sale",
             saved.getId(),
             isNew ? "CREATE" : "UPDATE",
-            null
+            "Products: " + products.size()
         );
 
         return saved;
@@ -67,7 +67,7 @@ public class SaleService {
             "Sale",
             id,
             "DELETE",
-            null
+            "Sale deleted with id: " + id
         );
     }
 }
