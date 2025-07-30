@@ -39,6 +39,11 @@ public class BrandService {
     public Brand save(Brand brand) {
         boolean isNew = (brand.getId() == null);
 
+        // Validación de campos obligatorios
+        if (brand.getName() == null || brand.getName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Brand name is required.");
+        }
+
         // Validación: no permitir crear si ya existe una con el mismo nombre
         if (isNew && brandRepository.findByNameIgnoreCase(brand.getName()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A brand with the name '" + brand.getName() + "' already exists.");

@@ -35,6 +35,11 @@ public class ProviderService {
     public Provider save(Provider provider) {
         boolean isNew = (provider.getId() == null);
 
+        // Validación de datos obligatorios
+        if (provider.getName() == null || provider.getName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Provider name is required.");
+        }
+
         if (isNew && providerRepository.findByNameIgnoreCase(provider.getName()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Provider with name '" + provider.getName() + "' already exists.");
         }

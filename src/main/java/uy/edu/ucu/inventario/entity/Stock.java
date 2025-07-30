@@ -22,7 +22,7 @@ public class Stock {
     private Deposit deposit;
 
     @Column(nullable = false)
-    private int quantity;
+    private Integer quantity;
 
     // === Constructors ===
 
@@ -60,11 +60,11 @@ public class Stock {
         this.deposit = deposit;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 }

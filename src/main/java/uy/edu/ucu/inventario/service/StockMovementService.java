@@ -42,6 +42,34 @@ public class StockMovementService {
 
     public StockMovement save(StockMovement movement) {
         boolean isNew = (movement.getId() == null);
+
+        // Validaciones
+        if (movement.getProduct() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product must not be null.");
+        }
+
+        if (movement.getType() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Movement type must not be null.");
+        }
+
+        switch (movement.getType()) {
+            case ENTRY -> {
+                if (movement.getDestinationDeposit() == null) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Destination deposit is required for ENTRY.");
+                }
+            }
+            case EXIT -> {
+                if (movement.getOriginDeposit() == null) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Origin deposit is required for EXIT.");
+                }
+            }
+            case TRANSFER -> {
+                if (movement.getOriginDeposit() == null || movement.getDestinationDeposit() == null) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Both origin and destination deposits are required for TRANSFER.");
+                }
+            }
+        }
+
         StockMovement saved = stockMovementRepository.save(movement);
 
         Product product = movement.getProduct();

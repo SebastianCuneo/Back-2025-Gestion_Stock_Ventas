@@ -34,6 +34,20 @@ public class UserService {
     public User save(User user) {
         boolean isNew = (user.getId() == null);
 
+        // Validaciones obligatorias
+        if (user.getFirstName() == null || user.getFirstName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "First name is required.");
+        }
+        if (user.getLastName() == null || user.getLastName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Last name is required.");
+        }
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required.");
+        }
+        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required.");
+        }
+
         if (isNew && userRepository.existsByEmailIgnoreCase(user.getEmail())) {
             throw new ResponseStatusException(
                 HttpStatus.CONFLICT,
