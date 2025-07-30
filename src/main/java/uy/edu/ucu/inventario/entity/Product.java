@@ -1,7 +1,7 @@
 package uy.edu.ucu.inventario.entity;
 
-import java.math.BigDecimal;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 
 /**
  * Entity representing a Product.
@@ -10,6 +10,38 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "products")
 public class Product {
+
+    // === Embedded classes ===
+
+    @Embeddable
+    public static class MonetaryValue {
+        private String currency;
+        private BigDecimal value;
+
+        public MonetaryValue() {
+        }
+
+        public MonetaryValue(String currency, BigDecimal value) {
+            this.currency = currency;
+            this.value = value;
+        }
+
+        public String getCurrency() {
+            return currency;
+        }
+
+        public void setCurrency(String currency) {
+            this.currency = currency;
+        }
+
+        public BigDecimal getValue() {
+            return value;
+        }
+
+        public void setValue(BigDecimal value) {
+            this.value = value;
+        }
+    }
 
     // === Attributes ===
 
@@ -23,8 +55,19 @@ public class Product {
     @Column(length = 255)
     private String description;
 
-    @Column(nullable = false)
-    private BigDecimal price;
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "currency", column = @Column(name = "purchase_currency")),
+        @AttributeOverride(name = "value", column = @Column(name = "purchase_price"))
+    })
+    private MonetaryValue purchasePrice;
+
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "currency", column = @Column(name = "sale_currency")),
+        @AttributeOverride(name = "value", column = @Column(name = "sale_price"))
+    })
+    private MonetaryValue salePrice;
 
     @ManyToOne
     @JoinColumn(name = "brand_id", nullable = false)
@@ -39,13 +82,13 @@ public class Product {
 
     // === Constructors ===
 
-    public Product() {
-    }
+    public Product() {}
 
-    public Product(String name, String description, BigDecimal price, Brand brand, Category category) {
+    public Product(String name, String description, MonetaryValue purchasePrice, MonetaryValue salePrice, Brand brand, Category category) {
         this.name = name;
         this.description = description;
-        this.price = price;
+        this.purchasePrice = purchasePrice;
+        this.salePrice = salePrice;
         this.brand = brand;
         this.category = category;
         this.depositsCount = 0;
@@ -77,12 +120,20 @@ public class Product {
         this.description = description;
     }
 
-    public BigDecimal getPrice() {
-        return price;
+    public MonetaryValue getPurchasePrice() {
+        return purchasePrice;
     }
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
+    public void setPurchasePrice(MonetaryValue purchasePrice) {
+        this.purchasePrice = purchasePrice;
+    }
+
+    public MonetaryValue getSalePrice() {
+        return salePrice;
+    }
+
+    public void setSalePrice(MonetaryValue salePrice) {
+        this.salePrice = salePrice;
     }
 
     public Brand getBrand() {

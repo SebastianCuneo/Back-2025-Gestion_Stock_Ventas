@@ -1,15 +1,14 @@
 package uy.edu.ucu.inventario.controller;
 
 import uy.edu.ucu.inventario.entity.Product;
+import uy.edu.ucu.inventario.entity.Product.MonetaryValue;
 import uy.edu.ucu.inventario.service.ProductService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/products")
@@ -24,9 +23,15 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> list() {
         List<Product> products = svc.listAll();
+        List<Map<String, Object>> transformed = new ArrayList<>();
+
+        for (Product p : products) {
+            transformed.add(transformProduct(p));
+        }
+
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("data", products);
+        response.put("data", transformed);
         response.put("message", "Product list retrieved successfully.");
         return ResponseEntity.ok(response);
     }
@@ -38,7 +43,7 @@ public class ProductController {
         return svc.getById(id)
                 .map(product -> {
                     response.put("success", true);
-                    response.put("data", product);
+                    response.put("data", transformProduct(product));
                     response.put("message", "Product found.");
                     return ResponseEntity.ok(response);
                 })
@@ -53,8 +58,8 @@ public class ProductController {
     public ResponseEntity<Map<String, Object>> create(@RequestBody Product p) {
         Product saved = svc.save(p);
         Map<String, Object> response = new HashMap<>();
-        response.put("success", true); 
-        response.put("data", saved);
+        response.put("success", true);
+        response.put("data", transformProduct(saved));
         response.put("message", "Product created successfully.");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -68,7 +73,7 @@ public class ProductController {
                     p.setId(id);
                     Product updated = svc.save(p);
                     response.put("success", true);
-                    response.put("data", updated);
+                    response.put("data", transformProduct(updated));
                     response.put("message", "Product updated successfully.");
                     return ResponseEntity.ok(response);
                 })
@@ -105,5 +110,30 @@ public class ProductController {
             response.put("error", "Internal error: " + ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    private Map<String, Object> transformProduct(Product p) {
+        Map<String, Object> productMap = new HashMap<>();
+        productMap.put("id", p.getId());
+        productMap.put("name", p.getName());
+        productMap.put("description", p.getDescription());
+        productMap.put("brand", p.getBrand());
+        productMap.put("category", p.getCategory());
+        productMap.put("depositsCount", p.getDepositsCount());
+
+        MonetaryValue purchase = p.getPurchasePrice();
+        MonetaryValue sale = p.getSalePrice();
+
+        productMap.put("purchasePrices", List.of(Map.of(
+            "currency", purchase != null ? purchase.getCurrency() : "USD",
+            "value", purchase != null ? purchase.getValue() : null
+        )));
+
+        productMap.put("salePrices", List.of(Map.of(
+            "currency", sale != null ? sale.getCurrency() : "USD",
+            "value", sale != null ? sale.getValue() : null
+        )));
+
+        return productMap;
     }
 }
