@@ -6,7 +6,7 @@ import uy.edu.ucu.inventario.enums.MovementType;
 import java.time.LocalDateTime;
 
 /**
- * Entity representing a stock movement (entry or exit).
+ * Entity representing a stock movement (entry, exit or transfer).
  */
 @Entity
 @Table(name = "stock_movements")
@@ -42,12 +42,18 @@ public class StockMovement {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // === Constructores ===
+    // === Constructors ===
 
-    public StockMovement() {
-    }
+    public StockMovement() {}
 
-    public StockMovement(MovementType type, Product product, Deposit originDeposit, Deposit destinationDeposit, int quantity, LocalDateTime date) {
+    public StockMovement(
+        MovementType type,
+        Product product,
+        Deposit originDeposit,
+        Deposit destinationDeposit,
+        int quantity,
+        LocalDateTime date
+    ) {
         this.type = type;
         this.product = product;
         this.originDeposit = originDeposit;

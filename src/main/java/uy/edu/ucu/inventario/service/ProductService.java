@@ -18,34 +18,34 @@ import java.util.Optional;
 @Service
 public class ProductService {
 
-    private final ProductRepository repo;
+    private final ProductRepository productRepository;
     private final AuditLogService auditLogService;
     private final BrandService brandService;
     private final CategoryService categoryService;
 
     public ProductService(
-        ProductRepository repo,
+        ProductRepository productRepository,
         AuditLogService auditLogService,
         BrandService brandService,
         CategoryService categoryService
     ) {
-        this.repo = repo;
+        this.productRepository = productRepository;
         this.auditLogService = auditLogService;
         this.brandService = brandService;
         this.categoryService = categoryService;
     }
 
     public List<Product> listAll() {
-        return repo.findAll();
+        return productRepository.findAll();
     }
 
     public Optional<Product> getById(Long id) {
-        return repo.findById(id);
+        return productRepository.findById(id);
     }
 
-    public Product save(Product p) {
-        boolean isNew = (p.getId() == null);
-        Product saved = repo.save(p);
+    public Product save(Product product) {
+        boolean isNew = (product.getId() == null);
+        Product saved = productRepository.save(product);
 
         if (isNew) {
             Brand brand = saved.getBrand();
@@ -65,14 +65,14 @@ public class ProductService {
     }
 
     public void delete(Long id) {
-        Optional<Product> productOpt = repo.findById(id);
+        Optional<Product> productOpt = productRepository.findById(id);
         if (productOpt.isEmpty()) {
             throw new EntityNotFoundException("Product with id " + id + " not found");
         }
 
         Product product = productOpt.get();
         try {
-            repo.deleteById(id);
+            productRepository.deleteById(id);
 
             brandService.decrementProductCount(product.getBrand());
             categoryService.decrementProductCount(product.getCategory());
@@ -90,14 +90,14 @@ public class ProductService {
 
     public void incrementDepositsCount(Product product) {
         product.setDepositsCount(product.getDepositsCount() + 1);
-        repo.save(product);
+        productRepository.save(product);
     }
 
     public void decrementDepositsCount(Product product) {
         int current = product.getDepositsCount();
         if (current > 0) {
             product.setDepositsCount(current - 1);
-            repo.save(product);
+            productRepository.save(product);
         }
     }
 }

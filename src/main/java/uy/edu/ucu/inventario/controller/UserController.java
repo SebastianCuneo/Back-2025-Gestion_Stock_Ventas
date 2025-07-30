@@ -17,19 +17,19 @@ import java.util.Map;
  * REST Controller for user management.
  */
 @RestController
-@RequestMapping("/api/users")
-public class UsersController {
+@RequestMapping("/api/user")
+public class UserController {
 
-    private final UserService svc;
+    private final UserService userService;
 
-    public UsersController(UserService svc) {
-        this.svc = svc;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     // Get all users
     @GetMapping
     public ResponseEntity<Map<String, Object>> list() {
-        List<User> users = svc.listAll();
+        List<User> users = userService.listAll();
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("data", users);
@@ -40,7 +40,7 @@ public class UsersController {
     // Get user by ID
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
-        return svc.getById(id)
+        return userService.getById(id)
                 .map(user -> {
                     Map<String, Object> response = new HashMap<>();
                     Map<String, Object> userData = new HashMap<>();
@@ -66,7 +66,7 @@ public class UsersController {
     // Create new user
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(@RequestBody User user) {
-        User saved = svc.save(user);
+        User saved = userService.save(user);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("data", saved);
@@ -77,10 +77,10 @@ public class UsersController {
     // Update existing user
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody User user) {
-        return svc.getById(id)
+        return userService.getById(id)
                 .map(existing -> {
                     user.setId(id);
-                    User updated = svc.save(user);
+                    User updated = userService.save(user);
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
                     response.put("data", updated);
@@ -98,12 +98,12 @@ public class UsersController {
     // Delete user
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        if (!svc.getById(id).isPresent()) {
+        if (!userService.getById(id).isPresent()) {
             return ResponseEntity.notFound().build();
         }
 
         try {
-            svc.delete(id);
+            userService.delete(id);
             return ResponseEntity.noContent().build();
 
         } catch (IllegalStateException ex) {

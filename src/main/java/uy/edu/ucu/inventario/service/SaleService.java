@@ -15,36 +15,35 @@ import java.util.Optional;
 @Service
 public class SaleService {
 
-    private final SaleRepository repo;
+    private final SaleRepository saleRepository;
     private final AuditLogService auditLogService;
 
-    public SaleService(SaleRepository repo, AuditLogService auditLogService) {
-        this.repo = repo;
+    public SaleService(SaleRepository saleRepository, AuditLogService auditLogService) {
+        this.saleRepository = saleRepository;
         this.auditLogService = auditLogService;
     }
 
     public List<Sale> listAll() {
-        return repo.findAll();
+        return saleRepository.findAll();
     }
 
     public long getTotalCount() {
-        return repo.count();
+        return saleRepository.count();
     }
 
     public Optional<Sale> getById(Long id) {
-        return repo.findById(id);
+        return saleRepository.findById(id);
     }
 
     public Sale save(Sale sale) {
         boolean isNew = (sale.getId() == null);
 
-        // Forzar carga de productos si es necesario
-        List<Product> products = sale.getProduct();
+        List<Product> products = sale.getProducts();
         if (products == null || products.isEmpty()) {
             throw new IllegalArgumentException("Sale must include at least one product.");
         }
 
-        Sale saved = repo.save(sale);
+        Sale saved = saleRepository.save(sale);
 
         auditLogService.saveLog(
             "Sale",
@@ -57,11 +56,11 @@ public class SaleService {
     }
 
     public void delete(Long id) {
-        if (!repo.existsById(id)) {
+        if (!saleRepository.existsById(id)) {
             throw new EntityNotFoundException("Sale with id " + id + " not found");
         }
 
-        repo.deleteById(id);
+        saleRepository.deleteById(id);
 
         auditLogService.saveLog(
             "Sale",

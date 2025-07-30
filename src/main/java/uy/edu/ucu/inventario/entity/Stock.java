@@ -26,8 +26,7 @@ public class Stock {
 
     // === Constructors ===
 
-    public Stock() {
-    }
+    public Stock() {}
 
     public Stock(Product product, Deposit deposit, int quantity) {
         this.product = product;

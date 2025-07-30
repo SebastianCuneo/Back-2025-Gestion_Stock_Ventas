@@ -16,46 +16,46 @@ import java.util.Optional;
 @Service
 public class StockService {
 
-    private final StockRepository repo;
+    private final StockRepository stockRepository;
     private final AuditLogService auditLogService;
     private final ProductService productService;
     private final DepositService depositService;
 
     public StockService(
-        StockRepository repo,
+        StockRepository stockRepository,
         AuditLogService auditLogService,
         ProductService productService,
         DepositService depositService
     ) {
-        this.repo = repo;
+        this.stockRepository = stockRepository;
         this.auditLogService = auditLogService;
         this.productService = productService;
         this.depositService = depositService;
     }
 
     public List<Stock> listAll() {
-        return repo.findAll();
+        return stockRepository.findAll();
     }
 
     public Optional<Stock> getById(Long id) {
-        return repo.findById(id);
+        return stockRepository.findById(id);
     }
 
-    public Stock save(Stock s) {
-        boolean isNew = (s.getId() == null);
+    public Stock save(Stock stock) {
+        boolean isNew = (stock.getId() == null);
 
         if (isNew) {
-            boolean existsInDeposit = repo.existsByProductIdAndDepositId(
-                s.getProduct().getId(), s.getDeposit().getId()
+            boolean existsInDeposit = stockRepository.existsByProductIdAndDepositId(
+                stock.getProduct().getId(), stock.getDeposit().getId()
             );
 
             if (!existsInDeposit) {
-                productService.incrementDepositsCount(s.getProduct());
-                depositService.incrementProductCount(s.getDeposit());
+                productService.incrementDepositsCount(stock.getProduct());
+                depositService.incrementProductCount(stock.getDeposit());
             }
         }
 
-        Stock saved = repo.save(s);
+        Stock saved = stockRepository.save(stock);
 
         auditLogService.saveLog(
             "Stock",
@@ -68,7 +68,7 @@ public class StockService {
     }
 
     public void delete(Long id) {
-        Optional<Stock> stockOpt = repo.findById(id);
+        Optional<Stock> stockOpt = stockRepository.findById(id);
 
         if (stockOpt.isEmpty()) {
             throw new EntityNotFoundException("Stock with id " + id + " not found");
@@ -77,7 +77,7 @@ public class StockService {
         Stock stock = stockOpt.get();
 
         try {
-            repo.deleteById(id);
+            stockRepository.deleteById(id);
 
             productService.decrementDepositsCount(stock.getProduct());
             depositService.decrementProductCount(stock.getDeposit());

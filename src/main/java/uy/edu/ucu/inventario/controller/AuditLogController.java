@@ -8,24 +8,23 @@ import uy.edu.ucu.inventario.service.AuditLogService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/audit")
+@RequestMapping("/api/audit-log")
 public class AuditLogController {
 
-    private final AuditLogService auditService;
+    private final AuditLogService auditLogService;
 
-    public AuditLogController(AuditLogService auditService) {
-        this.auditService = auditService;
+    public AuditLogController(AuditLogService auditLogService) {
+        this.auditLogService = auditLogService;
     }
 
     @GetMapping
-    public ResponseEntity<List<AuditLog>> getAllLogs() {
-        return ResponseEntity.ok(auditService.listAll());
+    public ResponseEntity<List<AuditLog>> getAll() {
+        return ResponseEntity.ok(auditLogService.listAll());
     }
 
-    // (Opcional) endpoint para registrar manualmente logs si se desea
     @PostMapping
-    public ResponseEntity<AuditLog> createLog(@RequestBody AuditLog log) {
-        return ResponseEntity.ok(auditService.saveLog(
+    public ResponseEntity<AuditLog> create(@RequestBody AuditLog log) {
+        return ResponseEntity.ok(auditLogService.saveLog(
                 log.getEntityName(),
                 log.getEntityId(),
                 log.getOperation(),

@@ -1,7 +1,6 @@
 package uy.edu.ucu.inventario.entity;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 /**
@@ -32,8 +31,7 @@ public class Provider {
 
     // === Constructors ===
 
-    public Provider() {
-    }
+    public Provider() {}
 
     public Provider(String name, String email, String phone, String address, LocalDateTime associatedDate) {
         this.name = name;

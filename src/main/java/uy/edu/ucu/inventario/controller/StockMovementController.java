@@ -10,18 +10,18 @@ import uy.edu.ucu.inventario.service.StockMovementService;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/stock-movements")
+@RequestMapping("/api/stock-movement")
 public class StockMovementController {
 
-    private final StockMovementService service;
+    private final StockMovementService stockMovementService;
 
-    public StockMovementController(StockMovementService service) {
-        this.service = service;
+    public StockMovementController(StockMovementService stockMovementService) {
+        this.stockMovementService = stockMovementService;
     }
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAll() {
-        List<StockMovement> movements = service.listAll();
+        List<StockMovement> movements = stockMovementService.listAll();
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("data", transformList(movements));
@@ -31,7 +31,7 @@ public class StockMovementController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getById(@PathVariable Long id) {
-        return service.getById(id)
+        return stockMovementService.getById(id)
                 .map(movement -> {
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
@@ -49,7 +49,7 @@ public class StockMovementController {
 
     @GetMapping("/type/{type}")
     public ResponseEntity<Map<String, Object>> getByType(@PathVariable MovementType type) {
-        List<StockMovement> movements = service.findByType(type);
+        List<StockMovement> movements = stockMovementService.findByType(type);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("data", transformList(movements));
@@ -59,7 +59,7 @@ public class StockMovementController {
 
     @GetMapping("/origin/{depositId}")
     public ResponseEntity<Map<String, Object>> getByOriginDeposit(@PathVariable Long depositId) {
-        List<StockMovement> movements = service.findByOriginDeposit(depositId);
+        List<StockMovement> movements = stockMovementService.findByOriginDeposit(depositId);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("data", transformList(movements));
@@ -69,7 +69,7 @@ public class StockMovementController {
 
     @GetMapping("/destination/{depositId}")
     public ResponseEntity<Map<String, Object>> getByDestinationDeposit(@PathVariable Long depositId) {
-        List<StockMovement> movements = service.findByDestinationDeposit(depositId);
+        List<StockMovement> movements = stockMovementService.findByDestinationDeposit(depositId);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("data", transformList(movements));
@@ -82,7 +82,7 @@ public class StockMovementController {
             @PathVariable Long originId,
             @PathVariable Long destinationId
     ) {
-        List<StockMovement> movements = service.findTransfersBetweenDeposits(originId, destinationId);
+        List<StockMovement> movements = stockMovementService.findTransfersBetweenDeposits(originId, destinationId);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("data", transformList(movements));
@@ -92,7 +92,7 @@ public class StockMovementController {
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(@RequestBody StockMovement movement) {
-        StockMovement saved = service.save(movement);
+        StockMovement saved = stockMovementService.save(movement);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("data", transformMovement(saved));
@@ -102,10 +102,10 @@ public class StockMovementController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody StockMovement updated) {
-        return service.getById(id)
+        return stockMovementService.getById(id)
                 .map(existing -> {
                     updated.setId(id);
-                    StockMovement saved = service.save(updated);
+                    StockMovement saved = stockMovementService.save(updated);
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
                     response.put("data", transformMovement(saved));
@@ -122,7 +122,7 @@ public class StockMovementController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
-        service.delete(id);
+        stockMovementService.delete(id);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("message", "Stock movement deleted successfully.");
@@ -142,10 +142,16 @@ public class StockMovementController {
     private Map<String, Object> transformMovement(StockMovement m) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", m.getId());
-        map.put("productId", m.getProduct().getId());
         map.put("quantity", m.getQuantity());
         map.put("type", m.getType());
         map.put("createdAt", m.getDate());
+
+        if (m.getProduct() != null) {
+            Map<String, Object> product = new HashMap<>();
+            product.put("id", m.getProduct().getId());
+            product.put("name", m.getProduct().getName());
+            map.put("product", product);
+        }
 
         if (m.getOriginDeposit() != null) {
             Map<String, Object> origin = new HashMap<>();
