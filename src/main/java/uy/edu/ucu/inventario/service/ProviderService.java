@@ -5,6 +5,7 @@ import uy.edu.ucu.inventario.repository.ProviderRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,11 @@ public class ProviderService {
 
     public Provider save(Provider p) {
         boolean isNew = (p.getId() == null);
+
+        if (isNew) {
+            p.setAssociatedDate(LocalDateTime.now());
+        }
+
         Provider saved = repo.save(p);
 
         auditLogService.saveLog(
