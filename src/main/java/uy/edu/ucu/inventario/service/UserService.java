@@ -1,4 +1,4 @@
-package uy.edu.ucu.inventario.service;
+	package uy.edu.ucu.inventario.service;
 
 import uy.edu.ucu.inventario.entity.User;
 import uy.edu.ucu.inventario.repository.UserRepository;

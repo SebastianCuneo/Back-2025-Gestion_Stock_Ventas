@@ -49,9 +49,12 @@ public class ProductService {
         Product saved = productRepository.save(product);
 
         if (isNew) {
-            Brand brand = saved.getBrand();
-            Category category = saved.getCategory();
-            brandService.incrementProductCount(brand);
+        	Long idBrand = saved.getBrand().getId();
+        	Brand brand = brandService.getById(idBrand).get();
+        	Long idCategory = saved.getCategory().getId();
+        	Category category = categoryService.getById(idCategory).get();
+
+        	brandService.incrementProductCount(brand);
             categoryService.incrementProductCount(category);
         }
 
