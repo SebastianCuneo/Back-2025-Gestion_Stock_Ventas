@@ -1,14 +1,13 @@
-# Imagen base con Java 17
-FROM eclipse-temurin:17-jdk-alpine
-
-# Carpeta de trabajo dentro del contenedor
+# Stage 1: build
+FROM maven:3.8.8-openjdk-17 AS build
 WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-# Copia el archivo JAR generado en el build
-COPY target/*.jar app.jar
-
-# Exponer el puerto que usará la app (8080 por defecto en Spring Boot)
+# Stage 2: run
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-
-# Comando para ejecutar la app
 ENTRYPOINT ["java", "-jar", "app.jar"]
