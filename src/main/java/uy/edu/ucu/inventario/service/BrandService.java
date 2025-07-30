@@ -2,12 +2,10 @@ package uy.edu.ucu.inventario.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
-import uy.edu.ucu.inventario.entity.AuditLog;
 import uy.edu.ucu.inventario.entity.Brand;
 import uy.edu.ucu.inventario.repository.BrandRepository;
 import uy.edu.ucu.inventario.repository.ProductRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,19 +34,19 @@ public class BrandService {
     }
 
     public Brand save(Brand brand) {
-        boolean isNew = (brand.getId() == null);
-        if (isNew) {
-            brand.setAssociatedProductCount(0); // inicializar
+        boolean isCreate = (brand.getId() == null);
+        if (isCreate) {
+            brand.setAssociatedProductCount(0); // Inicializamos contador si es nuevo
         }
         Brand saved = brandRepository.save(brand);
 
-        AuditLog log = new AuditLog();
-        log.setOperation(isNew ? "CREATE_BRAND" : "UPDATE_BRAND");
-        log.setTimestamp(LocalDateTime.now());
-        log.setUsername(null); // Spring Security más adelante
-        log.setDetails("Brand " + (isNew ? "created: " : "updated: ") + brand.getName());
+        auditLogService.saveLog(
+                "Brand",
+                saved.getId(),
+                isCreate ? "CREATE" : "UPDATE",
+                "Brand name: " + saved.getName()
+        );
 
-        auditLogService.save(log);
         return saved;
     }
 
@@ -59,15 +57,15 @@ public class BrandService {
         if (!brandRepository.existsById(id)) {
             throw new EntityNotFoundException("Brand with id " + id + " not found.");
         }
+
         brandRepository.deleteById(id);
 
-        AuditLog log = new AuditLog();
-        log.setOperation("DELETE_BRAND");
-        log.setTimestamp(LocalDateTime.now());
-        log.setUsername(null);
-        log.setDetails("Brand deleted with id: " + id);
-
-        auditLogService.save(log);
+        auditLogService.saveLog(
+                "Brand",
+                id,
+                "DELETE",
+                "Brand deleted with id: " + id
+        );
     }
 
     public void incrementProductCount(Brand brand) {
