@@ -5,6 +5,7 @@ import uy.edu.ucu.inventario.repository.DepositRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,13 +33,19 @@ public class DepositService {
 
     public Deposit save(Deposit d) {
         boolean isNew = (d.getId() == null);
+
+        if (isNew) {
+            d.setProductCount(0); // inicializa contador de productos
+            d.setAssociatedDate(LocalDateTime.now()); // registra la fecha de creación
+        }
+
         Deposit saved = repo.save(d);
 
         auditLogService.saveLog(
             "Deposit",
             saved.getId(),
             isNew ? "CREATE" : "UPDATE",
-            null // se completará luego con Spring Security
+            null
         );
 
         return saved;
@@ -56,5 +63,17 @@ public class DepositService {
             "DELETE",
             null
         );
+    }
+
+    public void incrementProductCount(Deposit deposit) {
+        deposit.setProductCount(deposit.getProductCount() + 1);
+        repo.save(deposit);
+    }
+
+    public void decrementProductCount(Deposit deposit) {
+        if (deposit.getProductCount() > 0) {
+            deposit.setProductCount(deposit.getProductCount() - 1);
+            repo.save(deposit);
+        }
     }
 }

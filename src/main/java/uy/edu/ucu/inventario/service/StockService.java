@@ -3,10 +3,8 @@ package uy.edu.ucu.inventario.service;
 import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.entity.Stock;
 import uy.edu.ucu.inventario.repository.StockRepository;
-
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
 import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
@@ -21,11 +19,18 @@ public class StockService {
     private final StockRepository repo;
     private final AuditLogService auditLogService;
     private final ProductService productService;
+    private final DepositService depositService;
 
-    public StockService(StockRepository repo, AuditLogService auditLogService, ProductService productService) {
+    public StockService(
+        StockRepository repo,
+        AuditLogService auditLogService,
+        ProductService productService,
+        DepositService depositService
+    ) {
         this.repo = repo;
         this.auditLogService = auditLogService;
         this.productService = productService;
+        this.depositService = depositService;
     }
 
     public List<Stock> listAll() {
@@ -46,6 +51,7 @@ public class StockService {
 
             if (!existsInDeposit) {
                 productService.incrementDepositsCount(s.getProduct());
+                depositService.incrementProductCount(s.getDeposit());
             }
         }
 
@@ -74,6 +80,7 @@ public class StockService {
             repo.deleteById(id);
 
             productService.decrementDepositsCount(stock.getProduct());
+            depositService.decrementProductCount(stock.getDeposit());
 
             auditLogService.saveLog(
                 "Stock",
