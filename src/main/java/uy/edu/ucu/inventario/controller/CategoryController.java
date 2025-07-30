@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import java.util.*;
 
 /**
@@ -94,12 +92,6 @@ public class CategoryController {
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
 
-        if (!categoryService.getById(id).isPresent()) {
-            response.put("success", false);
-            response.put("error", "Category not found.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-
         try {
             categoryService.delete(id);
             response.put("success", true);
@@ -110,11 +102,6 @@ public class CategoryController {
             response.put("success", false);
             response.put("error", ex.getMessage());
             return ResponseEntity.badRequest().body(response);
-
-        } catch (EntityNotFoundException ex) {
-            response.put("success", false);
-            response.put("error", "Category not found: " + ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
         } catch (DataIntegrityViolationException ex) {
             response.put("success", false);

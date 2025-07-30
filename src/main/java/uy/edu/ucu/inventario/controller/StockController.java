@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,15 +38,16 @@ public class StockController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
         return stockService.getById(id)
                 .map(stock -> {
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
                     response.put("data", stock);
                     response.put("message", "Stock found.");
                     return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> {
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", false);
                     response.put("error", "Stock not found.");
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -67,17 +66,18 @@ public class StockController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Stock stock) {
-        Map<String, Object> response = new HashMap<>();
         return stockService.getById(id)
                 .map(existing -> {
                     stock.setId(id);
                     Stock updated = stockService.save(stock);
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
                     response.put("data", updated);
                     response.put("message", "Stock updated successfully.");
                     return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> {
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", false);
                     response.put("error", "Stock not found.");
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -87,12 +87,6 @@ public class StockController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
-
-        if (!stockService.getById(id).isPresent()) {
-            response.put("success", false);
-            response.put("error", "Stock not found.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
 
         try {
             stockService.delete(id);
@@ -104,11 +98,6 @@ public class StockController {
             response.put("success", false);
             response.put("error", ex.getMessage());
             return ResponseEntity.badRequest().body(response);
-
-        } catch (EntityNotFoundException ex) {
-            response.put("success", false);
-            response.put("error", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
         } catch (DataIntegrityViolationException ex) {
             response.put("success", false);

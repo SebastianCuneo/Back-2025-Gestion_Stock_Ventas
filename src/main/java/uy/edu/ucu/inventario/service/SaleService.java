@@ -3,8 +3,9 @@ package uy.edu.ucu.inventario.service;
 import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.entity.Sale;
 import uy.edu.ucu.inventario.repository.SaleRepository;
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class SaleService {
 
         List<Product> products = sale.getProducts();
         if (products == null || products.isEmpty()) {
-            throw new IllegalArgumentException("Sale must include at least one product.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sale must include at least one product.");
         }
 
         Sale saved = saleRepository.save(sale);
@@ -57,7 +58,7 @@ public class SaleService {
 
     public void delete(Long id) {
         if (!saleRepository.existsById(id)) {
-            throw new EntityNotFoundException("Sale with id " + id + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sale with id " + id + " not found");
         }
 
         saleRepository.deleteById(id);

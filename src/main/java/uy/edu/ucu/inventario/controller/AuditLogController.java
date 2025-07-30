@@ -24,11 +24,7 @@ public class AuditLogController {
 
     @PostMapping
     public ResponseEntity<AuditLog> create(@RequestBody AuditLog log) {
-        return ResponseEntity.ok(auditLogService.saveLog(
-                log.getEntityName(),
-                log.getEntityId(),
-                log.getOperation(),
-                log.getUsername()
-        ));
+        AuditLog saved = auditLogService.save(log);
+        return ResponseEntity.status(201).body(saved); // 201 CREATED
     }
 }

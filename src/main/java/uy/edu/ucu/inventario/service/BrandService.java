@@ -1,7 +1,8 @@
 package uy.edu.ucu.inventario.service;
 
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import uy.edu.ucu.inventario.entity.AuditLog;
 import uy.edu.ucu.inventario.entity.Brand;
 import uy.edu.ucu.inventario.repository.BrandRepository;
@@ -53,12 +54,14 @@ public class BrandService {
     }
 
     public void delete(Long id) {
-        if (productRepository.existsByBrandId(id)) {
-            throw new IllegalStateException("Cannot delete brand because it has associated products.");
-        }
         if (!brandRepository.existsById(id)) {
-            throw new EntityNotFoundException("Brand with id " + id + " not found.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Brand with id " + id + " not found.");
         }
+
+        if (productRepository.existsByBrandId(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot delete brand because it has associated products.");
+        }
+
         brandRepository.deleteById(id);
 
         AuditLog log = new AuditLog();

@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import java.util.*;
 
 /**
@@ -91,34 +89,20 @@ public class ProviderController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
-        if (!providerService.getById(id).isPresent()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("error", "Provider not found.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
+        Map<String, Object> response = new HashMap<>();
 
         try {
             providerService.delete(id);
-            Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Provider deleted successfully.");
             return ResponseEntity.ok(response);
 
-        } catch (EntityNotFoundException ex) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("error", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-
         } catch (DataIntegrityViolationException ex) {
-            Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("error", "Cannot delete provider due to data integrity constraints.");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
 
         } catch (Exception ex) {
-            Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("error", "Internal error: " + ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

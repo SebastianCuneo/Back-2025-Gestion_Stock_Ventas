@@ -2,8 +2,9 @@ package uy.edu.ucu.inventario.service;
 
 import uy.edu.ucu.inventario.entity.Provider;
 import uy.edu.ucu.inventario.repository.ProviderRepository;
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -52,7 +53,7 @@ public class ProviderService {
 
     public void delete(Long id) {
         if (!providerRepository.existsById(id)) {
-            throw new EntityNotFoundException("Provider with id " + id + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Provider with id " + id + " not found");
         }
 
         providerRepository.deleteById(id);

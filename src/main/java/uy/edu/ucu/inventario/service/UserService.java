@@ -2,9 +2,9 @@ package uy.edu.ucu.inventario.service;
 
 import uy.edu.ucu.inventario.entity.User;
 import uy.edu.ucu.inventario.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +47,7 @@ public class UserService {
 
     public void delete(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new EntityNotFoundException("User with id " + id + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id " + id + " not found");
         }
 
         userRepository.deleteById(id);
