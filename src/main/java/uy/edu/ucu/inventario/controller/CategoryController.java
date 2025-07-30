@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityNotFoundException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * REST Controller for the Category entity.
@@ -31,25 +29,31 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> list() {
         List<Category> categories = svc.listAll();
+        List<Map<String, Object>> transformed = new ArrayList<>();
+
+        for (Category c : categories) {
+            transformed.add(transformCategory(c));
+        }
+
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("data", categories);
+        response.put("data", transformed);
         response.put("message", "Category list retrieved successfully.");
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-
         return svc.getById(id)
                 .map(category -> {
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
-                    response.put("data", category);
+                    response.put("data", transformCategory(category));
                     response.put("message", "Category found.");
                     return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> {
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", false);
                     response.put("error", "Category not found.");
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -61,25 +65,25 @@ public class CategoryController {
         Category saved = svc.save(c);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("data", saved);
+        response.put("data", transformCategory(saved));
         response.put("message", "Category created successfully.");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Category c) {
-        Map<String, Object> response = new HashMap<>();
-
         return svc.getById(id)
                 .map(existing -> {
                     c.setId(id);
                     Category updated = svc.save(c);
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
-                    response.put("data", updated);
+                    response.put("data", transformCategory(updated));
                     response.put("message", "Category updated successfully.");
                     return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> {
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", false);
                     response.put("error", "Category not found.");
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -122,5 +126,13 @@ public class CategoryController {
             response.put("error", "Internal error: " + ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    private Map<String, Object> transformCategory(Category c) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", c.getId());
+        map.put("name", c.getName());
+        map.put("associatedProductCount", c.getAssociatedProductCount());
+        return map;
     }
 }
