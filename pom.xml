@@ -3,16 +3,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>3.5.3</version>
-    <relativePath/> <!-- lookup parent from repository -->
+    <relativePath/>
   </parent>
 
-  <!-- Ajusta estos valores a los de tu proyecto -->
   <groupId>com.Back</groupId>
   <artifactId>Back</artifactId>
   <version>0.0.1-SNAPSHOT</version>
@@ -20,44 +20,44 @@
   <description>Proyecto Spring Boot para Gestión de Stock y Ventas</description>
 
   <properties>
-    <!-- La versión de Java que estás usando -->
     <java.version>17</java.version>
-    <!-- Para evitar errores de encoding al procesar resources -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
-    <!-- Arranque web -->
+    <!-- Spring Web -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
 
-    <!-- JPA + Hibernate -->
+    <!-- Spring Data JPA -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
 
-    <!-- Conector MySQL -->
+    <!-- PostgreSQL Driver -->
     <dependency>
-      <groupId>com.mysql</groupId>
-      <artifactId>mysql-connector-j</artifactId>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.7.3</version>
       <scope>runtime</scope>
     </dependency>
 
-    <!-- (Opcional) Si no quieres seguridad, elimina este bloque -->
+    <!-- Spring Security -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
 
-    <!-- Dependencias de testeo -->
+    <!-- Testing -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-test</artifactId>
@@ -66,7 +66,6 @@
   </dependencies>
 
   <build>
-    <!-- Copia los recursos tal cual, sin filtrar ni recodificar -->
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -75,13 +74,13 @@
     </resources>
 
     <plugins>
-      <!-- Empaqueta como ejecutable Spring Boot -->
+      <!-- Plugin de Spring Boot -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
 
-      <!-- Asegura que el plugin de recursos use UTF-8 -->
+      <!-- Codificación UTF-8 -->
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.3.1</version>
@@ -91,4 +90,5 @@
       </plugin>
     </plugins>
   </build>
+
 </project>
