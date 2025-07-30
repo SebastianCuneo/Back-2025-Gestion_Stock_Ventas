@@ -1,15 +1,17 @@
 package uy.edu.ucu.inventario.service;
 
-import uy.edu.ucu.inventario.entity.Product;
-import uy.edu.ucu.inventario.entity.Stock;
-import uy.edu.ucu.inventario.repository.StockRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
+import uy.edu.ucu.inventario.entity.Deposit;
+import uy.edu.ucu.inventario.entity.Product;
+import uy.edu.ucu.inventario.entity.Stock;
+import uy.edu.ucu.inventario.repository.StockRepository;
 
 /**
  * Service for managing product stock in deposits.
@@ -58,6 +60,15 @@ public class StockService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock quantity must be specified and not negative.");
         }
 
+        // --- Cargar producto y deposito completos para evitar errores de Hibernate ---
+        Product fullProduct = productService.getById(stock.getProduct().getId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product not found"));
+        stock.setProduct(fullProduct);
+
+        Deposit fullDeposit = depositService.getById(stock.getDeposit().getId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deposit not found"));
+        stock.setDeposit(fullDeposit);
+        
         if (isNew) {
             boolean existsInDeposit = stockRepository.existsByProductIdAndDepositId(
                 stock.getProduct().getId(), stock.getDeposit().getId()

@@ -1,14 +1,24 @@
 package uy.edu.ucu.inventario.controller;
 
-import uy.edu.ucu.inventario.entity.Product;
-import uy.edu.ucu.inventario.entity.Product.MonetaryValue;
-import uy.edu.ucu.inventario.service.ProductService;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import uy.edu.ucu.inventario.entity.Product;
+import uy.edu.ucu.inventario.entity.Product.MonetaryValue;
+import uy.edu.ucu.inventario.service.ProductService;
 
 @RestController
 @RequestMapping("/api/product")
@@ -110,21 +120,35 @@ public class ProductController {
         productMap.put("id", product.getId());
         productMap.put("name", product.getName());
         productMap.put("description", product.getDescription());
-        productMap.put("brand", product.getBrand());
-        productMap.put("category", product.getCategory());
         productMap.put("depositsCount", product.getDepositsCount());
 
+        // Evitar referencias circulares al serializar brand y category
+        if (product.getBrand() != null) {
+            Map<String, Object> brandMap = new HashMap<>();
+            brandMap.put("id", product.getBrand().getId());
+            brandMap.put("name", product.getBrand().getName());
+            productMap.put("brand", brandMap);
+        }
+
+        if (product.getCategory() != null) {
+            Map<String, Object> categoryMap = new HashMap<>();
+            categoryMap.put("id", product.getCategory().getId());
+            categoryMap.put("name", product.getCategory().getName());
+            productMap.put("category", categoryMap);
+        }
+
+        // Evitar errores por precios nulos
         MonetaryValue purchase = product.getPurchasePrice();
         MonetaryValue sale = product.getSalePrice();
 
         productMap.put("purchasePrices", List.of(Map.of(
             "currency", purchase != null ? purchase.getCurrency() : "USD",
-            "value", purchase != null ? purchase.getValue() : null
+            "value", purchase != null ? purchase.getValue() : 0
         )));
 
         productMap.put("salePrices", List.of(Map.of(
             "currency", sale != null ? sale.getCurrency() : "USD",
-            "value", sale != null ? sale.getValue() : null
+            "value", sale != null ? sale.getValue() : 0
         )));
 
         return productMap;

@@ -1,14 +1,24 @@
 package uy.edu.ucu.inventario.controller;
 
-import uy.edu.ucu.inventario.entity.Deposit;
-import uy.edu.ucu.inventario.service.DepositService;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import uy.edu.ucu.inventario.entity.Deposit;
+import uy.edu.ucu.inventario.service.DepositService;
 
 /**
  * REST Controller for managing deposits.
