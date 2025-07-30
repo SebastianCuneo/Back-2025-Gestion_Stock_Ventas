@@ -39,6 +39,7 @@ public class SaleService {
     public Sale save(Sale sale) {
         boolean isNew = (sale.getId() == null);
 
+        // Validación: debe tener al menos un producto
         List<Product> products = sale.getProducts();
         if (products == null || products.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sale must include at least one product.");

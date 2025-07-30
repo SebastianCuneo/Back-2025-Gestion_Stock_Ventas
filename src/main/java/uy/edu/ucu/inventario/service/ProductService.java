@@ -48,6 +48,20 @@ public class ProductService {
     public Product save(Product product) {
         boolean isNew = (product.getId() == null);
 
+        // Validaciones de datos obligatorios
+        if (product.getName() == null || product.getName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product name is required.");
+        }
+
+        if (product.getBrand() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product brand is required.");
+        }
+
+        if (product.getCategory() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product category is required.");
+        }
+
+        // Validación de duplicado
         if (isNew && productRepository.findByNameIgnoreCase(product.getName()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Product with name '" + product.getName() + "' already exists.");
         }

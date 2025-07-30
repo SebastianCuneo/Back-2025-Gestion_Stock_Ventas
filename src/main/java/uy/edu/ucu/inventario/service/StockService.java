@@ -45,6 +45,19 @@ public class StockService {
     public Stock save(Stock stock) {
         boolean isNew = (stock.getId() == null);
 
+        // Validaciones
+        if (stock.getProduct() == null || stock.getProduct().getId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock must be associated with a product.");
+        }
+
+        if (stock.getDeposit() == null || stock.getDeposit().getId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock must be associated with a deposit.");
+        }
+
+        if (stock.getQuantity() == null || stock.getQuantity() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock quantity must be specified and not negative.");
+        }
+
         if (isNew) {
             boolean existsInDeposit = stockRepository.existsByProductIdAndDepositId(
                 stock.getProduct().getId(), stock.getDeposit().getId()

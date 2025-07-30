@@ -35,6 +35,12 @@ public class DepositService {
     public Deposit save(Deposit deposit) {
         boolean isNew = (deposit.getId() == null);
 
+        // Validación: nombre obligatorio
+        if (deposit.getName() == null || deposit.getName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deposit name is required.");
+        }
+
+        // Validación: no duplicado
         if (isNew && depositRepository.findByNameIgnoreCase(deposit.getName()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Deposit with name '" + deposit.getName() + "' already exists.");
         }

@@ -35,6 +35,11 @@ public class CategoryService {
     public Category save(Category category) {
         boolean isNew = (category.getId() == null);
 
+        // Validar campos obligatorios
+        if (category.getName() == null || category.getName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category name is required.");
+        }
+
         if (isNew) {
             // Validar que no exista otra categoría con el mismo nombre
             if (categoryRepository.findByNameIgnoreCase(category.getName()).isPresent()) {
