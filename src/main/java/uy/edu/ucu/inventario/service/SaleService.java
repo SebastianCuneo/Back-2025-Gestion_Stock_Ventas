@@ -1,5 +1,6 @@
 package uy.edu.ucu.inventario.service;
 
+import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.entity.Sale;
 import uy.edu.ucu.inventario.repository.SaleRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,12 +27,23 @@ public class SaleService {
         return repo.findAll();
     }
 
+    public long getTotalCount() {
+        return repo.count();
+    }
+
     public Optional<Sale> getById(Long id) {
         return repo.findById(id);
     }
 
     public Sale save(Sale sale) {
         boolean isNew = (sale.getId() == null);
+
+        // Forzar carga de productos si es necesario
+        List<Product> products = sale.getProduct();
+        if (products == null || products.isEmpty()) {
+            throw new IllegalArgumentException("Sale must include at least one product.");
+        }
+
         Sale saved = repo.save(sale);
 
         auditLogService.saveLog(
