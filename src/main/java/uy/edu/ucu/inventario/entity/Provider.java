@@ -2,6 +2,8 @@ package uy.edu.ucu.inventario.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 /**
  * Entity representing a provider (supplier).
  */
@@ -25,16 +27,20 @@ public class Provider {
     @Column(length = 255)
     private String address;
 
+    @Column(name = "associated_date", nullable = false)
+    private LocalDateTime associatedDate;
+
     // === Constructors ===
 
     public Provider() {
     }
 
-    public Provider(String name, String email, String phone, String address) {
+    public Provider(String name, String email, String phone, String address, LocalDateTime associatedDate) {
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.address = address;
+        this.associatedDate = associatedDate;
     }
 
     // === Getters & Setters ===
@@ -77,5 +83,13 @@ public class Provider {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public LocalDateTime getAssociatedDate() {
+        return associatedDate;
+    }
+
+    public void setAssociatedDate(LocalDateTime associatedDate) {
+        this.associatedDate = associatedDate;
     }
 }
