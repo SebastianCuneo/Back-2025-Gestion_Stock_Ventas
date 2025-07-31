@@ -1,6 +1,8 @@
 package uy.edu.ucu.inventario.entity;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
@@ -12,6 +14,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -90,6 +94,15 @@ public class Product {
 
     @Column(nullable = false)
     private int depositsCount = 0;
+    
+    // Nueva relación Many-to-Many
+    @ManyToMany
+    @JoinTable(
+        name = "product_deposit", // Nombre de la tabla de unión
+        joinColumns = @JoinColumn(name = "product_id"),
+        inverseJoinColumns = @JoinColumn(name = "deposit_id")
+    )
+    private Set<Deposit> deposits = new HashSet<>();
 
     // === Constructors ===
 
@@ -179,5 +192,23 @@ public class Product {
         if (this.depositsCount > 0) {
             this.depositsCount--;
         }
+    }
+    // Reemplaza los métodos relacionados con depositsCount
+    public Set<Deposit> getDeposits() {
+        return deposits;
+    }
+
+    public void setDeposits(Set<Deposit> deposits) {
+        this.deposits = deposits;
+    }
+    
+    // Método para manejar la adición de un depósito
+    public void addDeposit(Deposit deposit) {
+        this.deposits.add(deposit);
+    }
+
+    // Método para manejar la eliminación de un depósito
+    public void removeDeposit(Deposit deposit) {
+        this.deposits.remove(deposit);
     }
 }

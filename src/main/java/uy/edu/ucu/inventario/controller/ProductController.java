@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import uy.edu.ucu.inventario.entity.Deposit;
 import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.entity.Product.MonetaryValue;
 import uy.edu.ucu.inventario.service.ProductService;
@@ -122,6 +123,18 @@ public class ProductController {
         productMap.put("description", product.getDescription());
         productMap.put("depositsCount", product.getDepositsCount());
 
+        // Asumiendo que la entidad Product tiene un método getDeposits() que devuelve una List<Deposit>
+        List<Map<String, Object>> depositsList = new ArrayList<>();
+        if (product.getDeposits() != null) {
+            for (Deposit deposit : product.getDeposits()) {
+                Map<String, Object> depositMap = new HashMap<>();
+                depositMap.put("id", deposit.getId());
+                depositMap.put("name", deposit.getName());
+                depositsList.add(depositMap);
+            }
+        }
+        productMap.put("deposits", depositsList);
+        
         // Evitar referencias circulares al serializar brand y category
         if (product.getBrand() != null) {
             Map<String, Object> brandMap = new HashMap<>();
