@@ -9,8 +9,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 
 public interface IJWTUtilityService {
-    public String generateJWT(Long user_id) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException;
-    public JWTClaimsSet parseJWT(String jwt) throws JOSEException, IOException, NoSuchAlgorithmException, InvalidKeySpecException, ParseException;
+
+    public String generateJWT(Long subject) throws JOSEException, ParseException, JOSEException, IOException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException;
+
+    public JWTClaimsSet parseJWT(String jwt) throws ParseException, JOSEException, IOException, NoSuchAlgorithmException, InvalidKeySpecException;
+
 }
-
-

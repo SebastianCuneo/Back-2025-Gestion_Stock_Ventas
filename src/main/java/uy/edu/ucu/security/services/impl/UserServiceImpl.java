@@ -1,11 +1,10 @@
 package uy.edu.ucu.security.services.impl;
 
+import uy.edu.ucu.security.persistence.entities.UserEntity;
+import uy.edu.ucu.security.persistence.repositories.SecurityUserRepository;
+import uy.edu.ucu.security.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uy.edu.ucu.security.persistence.entities.UserEntity;
-import uy.edu.ucu.security.persistence.repositories.UserRepository;
-import uy.edu.ucu.security.services.IUserService;
-import java.util.List;
 
 import java.util.List;
 
@@ -13,10 +12,10 @@ import java.util.List;
 public class UserServiceImpl implements IUserService {
 
     @Autowired
-    UserRepository userRepository;
+    SecurityUserRepository securityUserRepository;
 
     @Override
     public List<UserEntity> findAllUsers(){
-        return userRepository.findAll();
+        return securityUserRepository.findAll();
     }
 }

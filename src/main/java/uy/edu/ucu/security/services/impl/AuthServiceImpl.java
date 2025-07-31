@@ -1,72 +1,86 @@
 package uy.edu.ucu.security.services.impl;
 
-import uy.edu.ucu.security.persistence.entities.UserEntity;
-import uy.edu.ucu.security.persistence.repositories.UserRepository;
-import uy.edu.ucu.security.services.IAuthservice;           // ajustá nombre si lo tenés distinto
-import uy.edu.ucu.security.services.IJWTUtilityService;
 import uy.edu.ucu.security.services.models.dtos.LoginDTO;
+import uy.edu.ucu.security.persistence.entities.UserEntity;
+import uy.edu.ucu.security.persistence.repositories.SecurityUserRepository;
+import uy.edu.ucu.security.services.IAuthService;
+import uy.edu.ucu.security.services.IJWTUtilityService;
 import uy.edu.ucu.security.services.models.dtos.ResponseDTO;
-import uy.edu.ucu.security.services.models.validation.UserValidation;
-import org.springframework.stereotype.Service;
+import uy.edu.ucu.security.services.models.validations.UserValidations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Service
-public class AuthService implements IAuthService {
+public class AuthServiceImpl implements IAuthService {
 
-    private final UserRepository userRepository;
-    private final IJWTUtilityService jwtUtilityService;
-    private final UserValidation userValidation;
+    @Autowired
+    private SecurityUserRepository securityUserRepository;
 
-    public AuthService(UserRepository userRepository,
-                       IJWTUtilityService jwtUtilityService,
-                       UserValidation userValidation) {
-        this.userRepository     = userRepository;
-        this.jwtUtilityService  = jwtUtilityService;
-        this.userValidation     = userValidation;
-    }
+    @Autowired
+    private IJWTUtilityService jwtUtilityService;
+
+    @Autowired
+    private UserValidations userValidations;
 
     @Override
     public HashMap<String, String> login(LoginDTO loginRequest) throws Exception {
-        // ... tu implementación de login ...
+        try {
+            HashMap<String, String> jwt = new HashMap<>();
+            Optional<UserEntity> user = securityUserRepository.findByEmail(loginRequest.getEmail());
+
+            if (user.isEmpty()) {
+                jwt.put("error", "User not registered!");
+                return jwt;
+            }
+            if (verifyPassword(loginRequest.getPassword(), user.get().getPassword())) {
+                jwt.put("jwt", jwtUtilityService.generateJWT(user.get().getId()));
+            } else {
+                jwt.put("error", "Authentication failed");
+            }
+            return jwt;
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error generating JWT: " + e.getMessage());
+            throw new Exception("Error generating JWT", e);
+        } catch (Exception e) {
+            System.err.println("Unknown error: " + e.toString());
+            throw new Exception("Unknown error", e);
+        }
     }
 
     @Override
     public ResponseDTO register(UserEntity user) throws Exception {
-        // abrimos only ONE try here
         try {
-            // 1) validaciones básicas
-            ResponseDTO response = userValidation.validate(user);
-            if (response.getNumOfErrors() > 0) {
+            ResponseDTO response = userValidations.validate(user);
+            List<UserEntity> getAllUsers = securityUserRepository.findAll();
+
+            if (response.getNumOfErrors() > 0){
                 return response;
             }
 
-            // 2) comprueba email duplicado
-            List<UserEntity> all = userRepository.findAll();
-            for (UserEntity existing : all) {
-                if (existing.getEmail().equalsIgnoreCase(user.getEmail())) {
+            for (UserEntity repeatFields : getAllUsers) {
+                if (repeatFields != null) {
                     response.setMessage("User already exists!");
                     return response;
                 }
             }
 
-            // 3) encripta y guarda
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
             user.setPassword(encoder.encode(user.getPassword()));
-            userRepository.save(user);
-
+            securityUserRepository.save(user);
             response.setMessage("User created successfully!");
             return response;
-
         } catch (Exception e) {
-            // sólo un bloque catch al final del try
-            throw new Exception("Error during registration: " + e.getMessage(), e);
+            throw new Exception(e.getMessage());
         }
     }
 
-    // método auxiliar
-    private boolean verifyPassword(String raw, String encoded) {
-        return new BCryptPasswordEncoder().matches(raw, encoded);
+    private boolean verifyPassword(String enteredPassword, String storedPassword) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.matches(enteredPassword, storedPassword);
     }
 }
