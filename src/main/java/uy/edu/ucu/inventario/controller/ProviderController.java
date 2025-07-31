@@ -14,7 +14,7 @@ import java.util.*;
  * REST Controller for the Provider entity.
  */
 @RestController
-@RequestMapping("/api/provider")
+@RequestMapping("/api/providers")
 public class ProviderController {
 
     private final ProviderService providerService;

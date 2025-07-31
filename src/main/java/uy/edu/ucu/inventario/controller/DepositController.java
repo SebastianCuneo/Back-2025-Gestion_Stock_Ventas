@@ -24,7 +24,7 @@ import uy.edu.ucu.inventario.service.DepositService;
  * REST Controller for managing deposits.
  */
 @RestController
-@RequestMapping("/api/deposit")
+@RequestMapping("/api/deposits")
 public class DepositController {
 
     private final DepositService depositService;
