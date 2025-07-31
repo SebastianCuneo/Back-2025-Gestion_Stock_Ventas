@@ -4,9 +4,11 @@ import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.entity.Brand;
 import uy.edu.ucu.inventario.entity.Category;
 import uy.edu.ucu.inventario.repository.ProductRepository;
+
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,34 +20,53 @@ import java.util.Optional;
 @Service
 public class ProductService {
 
-    private final ProductRepository repo;
+    private final ProductRepository productRepository;
     private final AuditLogService auditLogService;
     private final BrandService brandService;
     private final CategoryService categoryService;
 
     public ProductService(
-        ProductRepository repo,
+        ProductRepository productRepository,
         AuditLogService auditLogService,
         BrandService brandService,
         CategoryService categoryService
     ) {
-        this.repo = repo;
+        this.productRepository = productRepository;
         this.auditLogService = auditLogService;
         this.brandService = brandService;
         this.categoryService = categoryService;
     }
 
     public List<Product> listAll() {
-        return repo.findAll();
+        return productRepository.findAll();
     }
 
     public Optional<Product> getById(Long id) {
-        return repo.findById(id);
+        return productRepository.findById(id);
     }
 
-    public Product save(Product p) {
-        boolean isNew = (p.getId() == null);
-        Product saved = repo.save(p);
+    public Product save(Product product) {
+        boolean isNew = (product.getId() == null);
+
+        // Validaciones de datos obligatorios
+        if (product.getName() == null || product.getName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product name is required.");
+        }
+
+        if (product.getBrand() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product brand is required.");
+        }
+
+        if (product.getCategory() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product category is required.");
+        }
+
+        // Validación de duplicado
+        if (isNew && productRepository.findByNameIgnoreCase(product.getName()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Product with name '" + product.getName() + "' already exists.");
+        }
+
+        Product saved = productRepository.save(product);
 
         if (isNew) {
         	Long idBrand = saved.getBrand().getId();
@@ -61,21 +82,19 @@ public class ProductService {
             "Product",
             saved.getId(),
             isNew ? "CREATE" : "UPDATE",
-            null
+            "Product name: " + saved.getName()
         );
 
         return saved;
     }
 
     public void delete(Long id) {
-        Optional<Product> productOpt = repo.findById(id);
-        if (productOpt.isEmpty()) {
-            throw new EntityNotFoundException("Product with id " + id + " not found");
-        }
+        Product product = productRepository.findById(id).orElseThrow(() ->
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "Product with id " + id + " not found.")
+        );
 
-        Product product = productOpt.get();
         try {
-            repo.deleteById(id);
+            productRepository.deleteById(id);
 
             brandService.decrementProductCount(product.getBrand());
             categoryService.decrementProductCount(product.getCategory());
@@ -84,23 +103,23 @@ public class ProductService {
                 "Product",
                 id,
                 "DELETE",
-                null
+                "Product deleted: " + product.getName()
             );
         } catch (DataIntegrityViolationException ex) {
-            throw ex;
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot delete product due to related records.");
         }
     }
 
     public void incrementDepositsCount(Product product) {
         product.setDepositsCount(product.getDepositsCount() + 1);
-        repo.save(product);
+        productRepository.save(product);
     }
 
     public void decrementDepositsCount(Product product) {
         int current = product.getDepositsCount();
         if (current > 0) {
             product.setDepositsCount(current - 1);
-            repo.save(product);
+            productRepository.save(product);
         }
     }
 }

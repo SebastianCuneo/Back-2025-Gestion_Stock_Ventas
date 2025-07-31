@@ -3,10 +3,10 @@ package uy.edu.ucu.inventario.entity;
 import jakarta.persistence.*;
 import uy.edu.ucu.inventario.enums.MovementType;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
- * Entity representing a stock movement (entry or exit).
+ * Entity representing a stock movement (entry, exit or transfer).
  */
 @Entity
 @Table(name = "stock_movements")
@@ -36,24 +36,29 @@ public class StockMovement {
     private int quantity;
 
     @Column(nullable = false)
-    private LocalDateTime date;
+    private LocalDate date;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    // === Constructores ===
+    // === Constructors ===
 
-    public StockMovement() {
-    }
+    public StockMovement() {}
 
-    public StockMovement(MovementType type, Product product, Deposit originDeposit, Deposit destinationDeposit, int quantity, LocalDateTime date) {
+    public StockMovement(
+        MovementType type,
+        Product product,
+        Deposit originDeposit,
+        Deposit destinationDeposit,
+        int quantity
+    ) {
         this.type = type;
         this.product = product;
         this.originDeposit = originDeposit;
         this.destinationDeposit = destinationDeposit;
         this.quantity = quantity;
-        this.date = date;
+        this.date = LocalDate.now();
     }
 
     // === Getters & Setters ===
@@ -106,11 +111,11 @@ public class StockMovement {
         this.quantity = quantity;
     }
 
-    public LocalDateTime getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

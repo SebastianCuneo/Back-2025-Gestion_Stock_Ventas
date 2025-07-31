@@ -4,8 +4,9 @@ import uy.edu.ucu.inventario.entity.Category;
 import uy.edu.ucu.inventario.repository.CategoryRepository;
 import uy.edu.ucu.inventario.repository.ProductRepository;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,36 +14,47 @@ import java.util.Optional;
 @Service
 public class CategoryService {
 
-    private final CategoryRepository repo;
-    private final ProductRepository productRepo;
+    private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
     private final AuditLogService auditLogService;
 
-    public CategoryService(CategoryRepository repo, ProductRepository productRepo, AuditLogService auditLogService) {
-        this.repo = repo;
-        this.productRepo = productRepo;
+    public CategoryService(CategoryRepository categoryRepository, ProductRepository productRepository, AuditLogService auditLogService) {
+        this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
         this.auditLogService = auditLogService;
     }
 
     public List<Category> listAll() {
-        return repo.findAll();
+        return categoryRepository.findAll();
     }
 
     public Optional<Category> getById(Long id) {
-        return repo.findById(id);
+        return categoryRepository.findById(id);
     }
 
-    public Category save(Category c) {
-        boolean isCreate = (c.getId() == null);
-        if (isCreate) {
-            c.setAssociatedProductCount(0); // Inicializamos contador si es nueva
+    public Category save(Category category) {
+        boolean isNew = (category.getId() == null);
+
+        // Validar campos obligatorios
+        if (category.getName() == null || category.getName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category name is required.");
         }
 
-        Category saved = repo.save(c);
+        if (isNew) {
+            // Validar que no exista otra categoría con el mismo nombre
+            if (categoryRepository.findByNameIgnoreCase(category.getName()).isPresent()) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Category with that name already exists.");
+            }
+
+            category.setAssociatedProductCount(0); // Inicializamos contador si es nueva
+        }
+
+        Category saved = categoryRepository.save(category);
 
         auditLogService.saveLog(
             "Category",
             saved.getId(),
-            isCreate ? "CREATE" : "UPDATE",
+            isNew ? "CREATE" : "UPDATE",
             null // Username más adelante desde Spring Security
         );
 
@@ -50,16 +62,15 @@ public class CategoryService {
     }
 
     public void delete(Long id) {
-        Optional<Category> catOpt = repo.findById(id);
-        if (catOpt.isEmpty()) {
-            throw new EntityNotFoundException("Category with id " + id + " not found.");
+        if (!categoryRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category with id " + id + " not found.");
         }
 
-        if (productRepo.existsByCategoryId(id)) {
-            throw new IllegalStateException("Cannot delete category because it is used by products.");
+        if (productRepository.existsByCategoryId(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot delete category because it is used by products.");
         }
 
-        repo.deleteById(id);
+        categoryRepository.deleteById(id);
 
         auditLogService.saveLog(
             "Category",
@@ -71,11 +82,11 @@ public class CategoryService {
 
     public void incrementProductCount(Category category) {
         category.incrementAssociatedProductCount();
-        repo.save(category);
+        categoryRepository.save(category);
     }
 
     public void decrementProductCount(Category category) {
         category.decrementAssociatedProductCount();
-        repo.save(category);
+        categoryRepository.save(category);
     }
 }

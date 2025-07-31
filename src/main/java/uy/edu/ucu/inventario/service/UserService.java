@@ -2,9 +2,9 @@
 
 import uy.edu.ucu.inventario.entity.User;
 import uy.edu.ucu.inventario.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,25 +15,47 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    private final UserRepository repo;
+    private final UserRepository userRepository;
     private final AuditLogService auditLogService;
 
-    public UserService(UserRepository repo, AuditLogService auditLogService) {
-        this.repo = repo;
+    public UserService(UserRepository userRepository, AuditLogService auditLogService) {
+        this.userRepository = userRepository;
         this.auditLogService = auditLogService;
     }
 
     public List<User> listAll() {
-        return repo.findAll();
+        return userRepository.findAll();
     }
 
     public Optional<User> getById(Long id) {
-        return repo.findById(id);
+        return userRepository.findById(id);
     }
 
     public User save(User user) {
         boolean isNew = (user.getId() == null);
-        User saved = repo.save(user);
+
+        // Validaciones obligatorias
+        if (user.getFirstName() == null || user.getFirstName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "First name is required.");
+        }
+        if (user.getLastName() == null || user.getLastName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Last name is required.");
+        }
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required.");
+        }
+        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required.");
+        }
+
+        if (isNew && userRepository.existsByEmailIgnoreCase(user.getEmail())) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "A user with that email already exists."
+            );
+        }
+
+        User saved = userRepository.save(user);
 
         auditLogService.saveLog(
             "User",
@@ -46,11 +68,11 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        if (!repo.existsById(id)) {
-            throw new EntityNotFoundException("User with id " + id + " not found");
+        if (!userRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id " + id + " not found");
         }
 
-        repo.deleteById(id);
+        userRepository.deleteById(id);
 
         auditLogService.saveLog(
             "User",

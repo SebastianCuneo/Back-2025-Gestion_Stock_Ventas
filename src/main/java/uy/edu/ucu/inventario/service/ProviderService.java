@@ -2,9 +2,11 @@ package uy.edu.ucu.inventario.service;
 
 import uy.edu.ucu.inventario.entity.Provider;
 import uy.edu.ucu.inventario.repository.ProviderRepository;
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,48 +16,62 @@ import java.util.Optional;
 @Service
 public class ProviderService {
 
-    private final ProviderRepository repo;
+    private final ProviderRepository providerRepository;
     private final AuditLogService auditLogService;
 
-    public ProviderService(ProviderRepository repo, AuditLogService auditLogService) {
-        this.repo = repo;
+    public ProviderService(ProviderRepository providerRepository, AuditLogService auditLogService) {
+        this.providerRepository = providerRepository;
         this.auditLogService = auditLogService;
     }
 
     public List<Provider> listAll() {
-        return repo.findAll();
+        return providerRepository.findAll();
     }
 
     public Optional<Provider> getById(Long id) {
-        return repo.findById(id);
+        return providerRepository.findById(id);
     }
 
-    public Provider save(Provider p) {
-        boolean isNew = (p.getId() == null);
-        Provider saved = repo.save(p);
+    public Provider save(Provider provider) {
+        boolean isNew = (provider.getId() == null);
+
+        // Validación de datos obligatorios
+        if (provider.getName() == null || provider.getName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Provider name is required.");
+        }
+
+        if (isNew && providerRepository.findByNameIgnoreCase(provider.getName()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Provider with name '" + provider.getName() + "' already exists.");
+        }
+
+        if (isNew) {
+            provider.setAssociatedDate(LocalDateTime.now());
+        }
+
+        Provider saved = providerRepository.save(provider);
 
         auditLogService.saveLog(
             "Provider",
             saved.getId(),
             isNew ? "CREATE" : "UPDATE",
-            null
+            "Provider name: " + saved.getName()
         );
 
         return saved;
     }
 
     public void delete(Long id) {
-        if (!repo.existsById(id)) {
-            throw new EntityNotFoundException("Provider with id " + id + " not found");
+        if (!providerRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Provider with id " + id + " not found");
         }
 
-        repo.deleteById(id);
+        providerRepository.deleteById(id);
 
         auditLogService.saveLog(
             "Provider",
             id,
             "DELETE",
-            null
+            "Provider deleted with id: " + id
         );
     }
 }

@@ -1,7 +1,8 @@
 package uy.edu.ucu.inventario.service;
 
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.entity.Stock;
 import uy.edu.ucu.inventario.entity.StockMovement;
@@ -15,39 +16,67 @@ import java.util.Optional;
 @Service
 public class StockMovementService {
 
-    private final StockMovementRepository repo;
+    private final StockMovementRepository stockMovementRepository;
     private final AuditLogService auditLogService;
-    private final StockRepository stockRepo;
+    private final StockRepository stockRepository;
     private final ProductService productService;
 
     public StockMovementService(
-            StockMovementRepository repo,
+            StockMovementRepository stockMovementRepository,
             AuditLogService auditLogService,
-            StockRepository stockRepo,
+            StockRepository stockRepository,
             ProductService productService) {
-        this.repo = repo;
+        this.stockMovementRepository = stockMovementRepository;
         this.auditLogService = auditLogService;
-        this.stockRepo = stockRepo;
+        this.stockRepository = stockRepository;
         this.productService = productService;
     }
 
     public List<StockMovement> listAll() {
-        return repo.findAll();
+        return stockMovementRepository.findAll();
     }
 
     public Optional<StockMovement> getById(Long id) {
-        return repo.findById(id);
+        return stockMovementRepository.findById(id);
     }
 
     public StockMovement save(StockMovement movement) {
         boolean isNew = (movement.getId() == null);
-        StockMovement saved = repo.save(movement);
+
+        // Validaciones
+        if (movement.getProduct() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product must not be null.");
+        }
+
+        if (movement.getType() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Movement type must not be null.");
+        }
+
+        switch (movement.getType()) {
+            case ENTRY -> {
+                if (movement.getDestinationDeposit() == null) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Destination deposit is required for ENTRY.");
+                }
+            }
+            case EXIT -> {
+                if (movement.getOriginDeposit() == null) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Origin deposit is required for EXIT.");
+                }
+            }
+            case TRANSFER -> {
+                if (movement.getOriginDeposit() == null || movement.getDestinationDeposit() == null) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Both origin and destination deposits are required for TRANSFER.");
+                }
+            }
+        }
+
+        StockMovement saved = stockMovementRepository.save(movement);
 
         Product product = movement.getProduct();
 
         switch (movement.getType()) {
             case ENTRY -> {
-                boolean exists = stockRepo.existsByProductIdAndDepositId(
+                boolean exists = stockRepository.existsByProductIdAndDepositId(
                         product.getId(), movement.getDestinationDeposit().getId());
                 if (!exists) {
                     productService.incrementDepositsCount(product);
@@ -55,24 +84,24 @@ public class StockMovementService {
             }
             case EXIT -> {
                 Long depositId = movement.getOriginDeposit().getId();
-                Optional<Stock> stockOpt = stockRepo.findByProductIdAndDepositId(product.getId(), depositId);
+                Optional<Stock> stockOpt = stockRepository.findByProductIdAndDepositId(product.getId(), depositId);
                 if (stockOpt.isPresent() && stockOpt.get().getQuantity() == 0) {
                     productService.decrementDepositsCount(product);
-                    stockRepo.deleteById(stockOpt.get().getId());
+                    stockRepository.deleteById(stockOpt.get().getId());
                 }
             }
             case TRANSFER -> {
                 Long originId = movement.getOriginDeposit().getId();
-                Long destId = movement.getDestinationDeposit().getId();
+                Long destinationId = movement.getDestinationDeposit().getId();
 
-                Optional<Stock> originStock = stockRepo.findByProductIdAndDepositId(product.getId(), originId);
+                Optional<Stock> originStock = stockRepository.findByProductIdAndDepositId(product.getId(), originId);
                 if (originStock.isPresent() && originStock.get().getQuantity() == 0) {
                     productService.decrementDepositsCount(product);
-                    stockRepo.deleteById(originStock.get().getId());
+                    stockRepository.deleteById(originStock.get().getId());
                 }
 
-                boolean alreadyInDest = stockRepo.existsByProductIdAndDepositId(product.getId(), destId);
-                if (!alreadyInDest) {
+                boolean alreadyInDestination = stockRepository.existsByProductIdAndDepositId(product.getId(), destinationId);
+                if (!alreadyInDestination) {
                     productService.incrementDepositsCount(product);
                 }
             }
@@ -89,11 +118,11 @@ public class StockMovementService {
     }
 
     public void delete(Long id) {
-        if (!repo.existsById(id)) {
-            throw new EntityNotFoundException("Stock movement with id " + id + " not found.");
+        if (!stockMovementRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Stock movement with id " + id + " not found.");
         }
 
-        repo.deleteById(id);
+        stockMovementRepository.deleteById(id);
 
         auditLogService.saveLog(
                 "StockMovement",
@@ -104,18 +133,18 @@ public class StockMovementService {
     }
 
     public List<StockMovement> findByType(MovementType type) {
-        return repo.findByType(type);
+        return stockMovementRepository.findByType(type);
     }
 
     public List<StockMovement> findByOriginDeposit(Long depositId) {
-        return repo.findByOriginDepositId(depositId);
+        return stockMovementRepository.findByOriginDepositId(depositId);
     }
 
     public List<StockMovement> findByDestinationDeposit(Long depositId) {
-        return repo.findByDestinationDepositId(depositId);
+        return stockMovementRepository.findByDestinationDepositId(depositId);
     }
 
     public List<StockMovement> findTransfersBetweenDeposits(Long originId, Long destinationId) {
-        return repo.findByOriginDepositIdAndDestinationDepositId(originId, destinationId);
+        return stockMovementRepository.findByOriginDepositIdAndDestinationDepositId(originId, destinationId);
     }
 }

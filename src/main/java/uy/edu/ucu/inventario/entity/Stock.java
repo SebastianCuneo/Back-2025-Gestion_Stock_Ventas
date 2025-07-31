@@ -1,6 +1,13 @@
 package uy.edu.ucu.inventario.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 /**
  * Entity representing the stock of a product in a specific deposit.
@@ -22,12 +29,11 @@ public class Stock {
     private Deposit deposit;
 
     @Column(nullable = false)
-    private int quantity;
+    private Integer quantity;
 
     // === Constructors ===
 
-    public Stock() {
-    }
+    public Stock() {}
 
     public Stock(Product product, Deposit deposit, int quantity) {
         this.product = product;
@@ -61,11 +67,11 @@ public class Stock {
         this.deposit = deposit;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 }

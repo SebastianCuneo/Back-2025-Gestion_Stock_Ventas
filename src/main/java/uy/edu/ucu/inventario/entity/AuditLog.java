@@ -1,7 +1,6 @@
 package uy.edu.ucu.inventario.entity;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,7 +12,7 @@ public class AuditLog {
     private Long id;
 
     @Column(nullable = false, length = 50)
-    private String operation; // CREATE, UPDATE, DELETE
+    private String operation; // create, update, delete
 
     @Column(nullable = false, length = 100)
     private String entityName;
@@ -44,7 +43,7 @@ public class AuditLog {
         this.details = details;
     }
 
-    // === Getters y Setters ===
+    // === Getters y setters ===
 
     public Long getId() {
         return id;

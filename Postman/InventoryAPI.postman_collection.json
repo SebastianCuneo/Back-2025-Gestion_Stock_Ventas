@@ -14,14 +14,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/brands",
+					"raw": "localhost:8080/api/brand",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"brands"
+						"brand"
 					]
 				}
 			},
@@ -33,15 +33,15 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/brands/1",
+					"raw": "localhost:8080/api/brand/2",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"brands",
-						"1"
+						"brand",
+						"2"
 					]
 				}
 			},
@@ -59,17 +59,17 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"ExampleBrand\",\n  \"description\": \"Brand description\",\n  \"countryOfOrigin\": \"USA\"\n}"
+					"raw": "{\n  \"name\": \"ExampleBrand2\",\n  \"description\": \"Brand description\",\n  \"countryOfOrigin\": \"USA\"\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/brands",
+					"raw": "localhost:8080/api/brand",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"brands"
+						"brand"
 					]
 				}
 			},
@@ -90,15 +90,15 @@
 					"raw": "{\n  \"name\": \"UpdatedBrand\",\n  \"description\": \"Updated description\",\n  \"countryOfOrigin\": \"Germany\"\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/brands/1",
+					"raw": "localhost:8080/api/brand/2",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"brands",
-						"1"
+						"brand",
+						"2"
 					]
 				}
 			},
@@ -110,14 +110,14 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/brands/1",
+					"raw": "localhost:8080/api/brand/1",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"brands",
+						"brand",
 						"1"
 					]
 				}
@@ -130,14 +130,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/categories",
+					"raw": "localhost:8080/api/category",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"categories"
+						"category"
 					]
 				}
 			},
@@ -149,14 +149,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/categories/1",
+					"raw": "localhost:8080/api/category/1",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"categories",
+						"category",
 						"1"
 					]
 				}
@@ -178,14 +178,14 @@
 					"raw": "{\n  \"name\": \"Electronics\"\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/categories",
+					"raw": "localhost:8080/api/category",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"categories"
+						"category"
 					]
 				}
 			},
@@ -206,14 +206,14 @@
 					"raw": "{\n  \"name\": \"Home Appliances\"\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/categories/1",
+					"raw": "localhost:8080/api/category/1",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"categories",
+						"category",
 						"1"
 					]
 				}
@@ -226,14 +226,14 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/categories/1",
+					"raw": "localhost:8080/api/category/1",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"categories",
+						"category",
 						"1"
 					]
 				}
@@ -246,14 +246,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/deposits",
+					"raw": "localhost:8080/api/deposit",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"deposits"
+						"deposit"
 					]
 				}
 			},
@@ -265,14 +265,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/deposits/1",
+					"raw": "localhost:8080/api/deposit/1",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"deposits",
+						"deposit",
 						"1"
 					]
 				}
@@ -291,17 +291,17 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"Main Warehouse\",\n  \"location\": \"123 Main St\",\n  \"description\": \"Primary storage\"\n}"
+					"raw": "{\n  \"name\": \"Main Warehouseeeeee\",\n  \"location\": \"123 Main St\",\n  \"description\": \"Primary storage\"\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/deposits",
+					"raw": "localhost:8080/api/deposit",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"deposits"
+						"deposit"
 					]
 				}
 			},
@@ -319,17 +319,17 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"Secondary Warehouse\",\n  \"location\": \"456 Oak Ave\",\n  \"description\": \"Backup storage\"\n}"
+					"raw": "{\n  \"name\": \"Secondary Warehouse\",\n  \"location\": \"456 Oak Ave\",\n  \"description\": \"Backup storage\",\n  \"associatedDate\": 2025-12-12\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/deposits/1",
+					"raw": "localhost:8080/api/deposit/1",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"deposits",
+						"deposit",
 						"1"
 					]
 				}
@@ -342,14 +342,14 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/deposits/1",
+					"raw": "localhost:8080/api/deposit/1",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"deposits",
+						"deposit",
 						"1"
 					]
 				}
@@ -358,18 +358,31 @@
 		},
 		{
 			"name": "Product - List All",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
 			"request": {
 				"method": "GET",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "localhost:8080/api/products",
+					"raw": "localhost:8080/api/product",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"products"
+						"product"
 					]
 				}
 			},
@@ -377,19 +390,31 @@
 		},
 		{
 			"name": "Product - Get by ID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"method": "GET",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "localhost:8080/api/products/1",
+					"raw": "localhost:8080/api/product/7",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"products",
-						"1"
+						"product",
+						"7"
 					]
 				}
 			},
@@ -407,17 +432,17 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"Laptop\",\n  \"description\": \"High-end laptop\",\n  \"price\": 1299.99,\n  \"brand\": { \"id\": 1 },\n  \"category\": { \"id\": 1 }\n}"
+					"raw": "{\n  \"name\": \"Producto de prueba\",\n  \"description\": \"Este es un producto de ejemplo para pruebas.\",\n  \"purchasePrice\": {\n    \"currency\": \"USD\",\n    \"value\": 12.50\n  },\n  \"salePrice\": {\n    \"currency\": \"USD\",\n    \"value\": 19.99\n  },\n  \"brand\": {\n    \"id\": 2\n  },\n  \"category\": {\n    \"id\": 1\n  }\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/products",
+					"raw": "localhost:8080/api/product",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"products"
+						"product"
 					]
 				}
 			},
@@ -435,18 +460,18 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"Gaming Laptop\",\n  \"description\": \"Ultra-performance\",\n  \"price\": 1499.99,\n  \"brand\": { \"id\": 1 },\n  \"category\": { \"id\": 1 }\n}"
+					"raw": "{\n  \"name\": \"Producto de prueba update\",\n  \"description\": \"Este es un producto de ejemplo para pruebas.\",\n  \"purchasePrice\": {\n    \"currency\": \"USD\",\n    \"value\": 12.50\n  },\n  \"salePrice\": {\n    \"currency\": \"USD\",\n    \"value\": 19.99\n  },\n  \"brand\": {\n    \"id\": 2\n  },\n  \"category\": {\n    \"id\": 1\n  }\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/products/1",
+					"raw": "localhost:8080/api/product/7",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"products",
-						"1"
+						"product",
+						"7"
 					]
 				}
 			},
@@ -478,14 +503,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/providers",
+					"raw": "localhost:8080/api/provider",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"providers"
+						"provider"
 					]
 				}
 			},
@@ -497,14 +522,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/providers/1",
+					"raw": "localhost:8080/api/provider/1",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"providers",
+						"provider",
 						"1"
 					]
 				}
@@ -523,17 +548,17 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"SupplierX\",\n  \"email\": \"contact@supplierx.com\",\n  \"phone\": \"555-9876\",\n  \"address\": \"789 Pine Rd\"\n}"
+					"raw": "{\n  \"name\": \"SupplierXx\",\n  \"email\": \"contact@supplierx.com\",\n  \"phone\": \"555-9876\",\n  \"address\": \"789 Pine Rd\"\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/providers",
+					"raw": "localhost:8080/api/provider",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"providers"
+						"provider"
 					]
 				}
 			},
@@ -551,17 +576,17 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"SupplierY\",\n  \"email\": \"info@suppliery.com\",\n  \"phone\": \"555-1230\",\n  \"address\": \"1010 Maple St\"\n}"
+					"raw": "{\n  \"name\": \"SupplierY\",\n  \"email\": \"info@suppliery.com\",\n  \"phone\": \"555-1230\",\n  \"address\": \"1010 Maple St\",\n\"associatedDate\": \"1111-11-11T00:00:00\"\n\n}\n"
 				},
 				"url": {
-					"raw": "localhost:8080/api/providers/1",
+					"raw": "localhost:8080/api/provider/1",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"providers",
+						"provider",
 						"1"
 					]
 				}
@@ -574,15 +599,15 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/providers/1",
+					"raw": "localhost:8080/api/provider/3",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"providers",
-						"1"
+						"provider",
+						"3"
 					]
 				}
 			},
@@ -594,14 +619,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/sales",
+					"raw": "localhost:8080/api/sale",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"sales"
+						"sale"
 					]
 				}
 			},
@@ -613,15 +638,15 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/sales/1",
+					"raw": "localhost:8080/api/sale/2",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"sales",
-						"1"
+						"sale",
+						"2"
 					]
 				}
 			},
@@ -639,17 +664,17 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"date\": \"2025-07-24T15:30:00\",\n  \"total\": 99.99,\n  \"paymentMethod\": \"CREDIT_CARD\",\n  \"reseller\": \"OnlineStore\"\n}"
+					"raw": "{\n  \"date\": \"2025-07-24T15:30:00\",\n  \"total\": 99.99,\n  \"paymentMethod\": \"CARD\",\n  \"reseller\": \"OnlineStore\",\n\"products\": [\n  { \"id\": 2 }\n]\n\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/sales",
+					"raw": "localhost:8080/api/sale",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"sales"
+						"sale"
 					]
 				}
 			},
@@ -667,18 +692,18 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"date\": \"2025-07-25T10:00:00\",\n  \"total\": 79.99,\n  \"paymentMethod\": \"CASH\",\n  \"reseller\": \"RetailStore\"\n}"
+					"raw": "{\n  \"date\": \"2025-07-25T10:00:00\",\n  \"total\": 79.99,\n  \"paymentMethod\": \"CASH\",\n  \"reseller\": \"RetailStore\",\n  \"products\": [\n  { \"id\": 2 }\n]\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/sales/1",
+					"raw": "localhost:8080/api/sale/2",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"sales",
-						"1"
+						"sale",
+						"2"
 					]
 				}
 			},
@@ -690,15 +715,15 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/sales/1",
+					"raw": "localhost:8080/api/sale/2",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"sales",
-						"1"
+						"sale",
+						"2"
 					]
 				}
 			},
@@ -710,14 +735,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/stocks",
+					"raw": "localhost:8080/api/stock",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"stocks"
+						"stock"
 					]
 				}
 			},
@@ -729,14 +754,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/stocks/1",
+					"raw": "localhost:8080/api/stock/1",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"stocks",
+						"stock",
 						"1"
 					]
 				}
@@ -755,17 +780,17 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"product\": { \"id\": 1 },\n  \"deposit\": { \"id\": 1 },\n  \"quantity\": 50\n}"
+					"raw": "{\n  \"product\": { \"id\": 7 },\n  \"deposit\": { \"id\": 3 },\n  \"quantity\": 50\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/stocks",
+					"raw": "localhost:8080/api/stock",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"stocks"
+						"stock"
 					]
 				}
 			},
@@ -783,17 +808,17 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"product\": { \"id\": 1 },\n  \"deposit\": { \"id\": 1 },\n  \"quantity\": 150\n}"
+					"raw": "{\n  \"product\": { \"id\": 7 },\n  \"deposit\": { \"id\": 3 },\n  \"quantity\": 150\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/stocks/1",
+					"raw": "localhost:8080/api/stock/1",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"stocks",
+						"stock",
 						"1"
 					]
 				}
@@ -826,14 +851,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/stock-movements",
+					"raw": "localhost:8080/api/stock-movement",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"stock-movements"
+						"stock-movement"
 					]
 				}
 			},
@@ -871,17 +896,17 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"type\": \"ENTRY\",\n  \"product\": { \"id\": 1 },\n  \"originDeposit\": { \"id\": 1 },\n  \"destinationDeposit\": { \"id\": 2 },\n  \"quantity\": 50,\n  \"date\": \"2025-07-24T10:00:00\",\n  \"user\": { \"id\": 1 }\n}"
+					"raw": "{\n  \"type\": \"ENTRY\",\n  \"product\": { \"id\": 7 },\n  \"originDeposit\": { \"id\": 3 },\n  \"destinationDeposit\": { \"id\": 4 },\n  \"quantity\": 50,\n  \"date\": \"2025-07-24T10:00:00\",\n  \"user\": { \"id\": 1 }\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/stock-movements",
+					"raw": "localhost:8080/api/stock-movement",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"stock-movements"
+						"stock-movement"
 					]
 				}
 			},
@@ -922,15 +947,15 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/stock-movements/1",
+					"raw": "localhost:8080/api/stock-movement/4",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"stock-movements",
-						"1"
+						"stock-movement",
+						"4"
 					]
 				}
 			},
@@ -942,14 +967,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/users",
+					"raw": "localhost:8080/api/user",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"users"
+						"user"
 					]
 				}
 			},
@@ -961,14 +986,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/users/1",
+					"raw": "localhost:8080/api/user/1",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"users",
+						"user",
 						"1"
 					]
 				}
@@ -987,17 +1012,17 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"firstName\": \"Alice\",\n  \"lastName\": \"Smith\",\n  \"email\": \"alice.smith@example.com\",\n  \"password\": \"Password123\",\n  \"phone\": \"555-4321\"\n}"
+					"raw": "{\n  \"firstName\": \"Alicon\",\n  \"lastName\": \"Smith\",\n  \"email\": \"alice.smith@example.com\",\n  \"password\": \"Password123\",\n  \"phone\": \"555-4321\"\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/users",
+					"raw": "localhost:8080/api/user",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"users"
+						"user"
 					]
 				}
 			},
@@ -1018,14 +1043,14 @@
 					"raw": "{\n  \"firstName\": \"Alice\",\n  \"lastName\": \"Johnson\",\n  \"email\": \"alice.johnson@example.com\",\n  \"password\": \"NewPass456\",\n  \"phone\": \"555-9999\"\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/users/1",
+					"raw": "localhost:8080/api/user/1",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"users",
+						"user",
 						"1"
 					]
 				}
@@ -1038,15 +1063,15 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/users/1",
+					"raw": "localhost:8080/api/user/2",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"users",
-						"1"
+						"user",
+						"2"
 					]
 				}
 			},
@@ -1058,14 +1083,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/api/audit",
+					"raw": "localhost:8080/api/audit-log",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"audit"
+						"audit-log"
 					]
 				}
 			},
@@ -1086,16 +1111,24 @@
 					"raw": "{\n  \"operation\": \"CREATE\",\n  \"entityName\": \"Product\",\n  \"entityId\": 1,\n  \"timestamp\": \"2025-07-24T16:00:00\",\n  \"username\": \"admin\",\n  \"details\": \"Created product record\"\n}"
 				},
 				"url": {
-					"raw": "localhost:8080/api/audit",
+					"raw": "localhost:8080/api/audit-log",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"api",
-						"audit"
+						"audit-log"
 					]
 				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
 			},
 			"response": []
 		}

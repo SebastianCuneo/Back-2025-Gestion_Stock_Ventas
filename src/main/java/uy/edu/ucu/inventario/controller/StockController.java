@@ -1,36 +1,41 @@
 package uy.edu.ucu.inventario.controller;
 
-import uy.edu.ucu.inventario.entity.Stock;
-import uy.edu.ucu.inventario.service.StockService;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.persistence.EntityNotFoundException;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import uy.edu.ucu.inventario.entity.Stock;
+import uy.edu.ucu.inventario.service.StockService;
 
 /**
  * REST Controller for the Stock entity.
  * Manages the quantity of products in deposits.
  */
 @RestController
-@RequestMapping("/api/stocks") // se pluraliza en inglés para ser consistente
-public class StocksController {
+@RequestMapping("/api/stock")
+public class StockController {
 
-    private final StockService svc;
+    private final StockService stockService;
 
-    public StocksController(StockService svc) {
-        this.svc = svc;
+    public StockController(StockService stockService) {
+        this.stockService = stockService;
     }
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> list() {
-        List<Stock> stocks = svc.listAll();
+        List<Stock> stocks = stockService.listAll();
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("data", stocks);
@@ -40,15 +45,16 @@ public class StocksController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-        return svc.getById(id)
+        return stockService.getById(id)
                 .map(stock -> {
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
                     response.put("data", stock);
                     response.put("message", "Stock found.");
                     return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> {
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", false);
                     response.put("error", "Stock not found.");
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -56,8 +62,8 @@ public class StocksController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> create(@RequestBody Stock s) {
-        Stock saved = svc.save(s);
+    public ResponseEntity<Map<String, Object>> create(@RequestBody Stock stock) {
+        Stock saved = stockService.save(stock);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("data", saved);
@@ -66,18 +72,19 @@ public class StocksController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Stock s) {
-        Map<String, Object> response = new HashMap<>();
-        return svc.getById(id)
+    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Stock stock) {
+        return stockService.getById(id)
                 .map(existing -> {
-                    s.setId(id);
-                    Stock updated = svc.save(s);
+                    stock.setId(id);
+                    Stock updated = stockService.save(stock);
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
                     response.put("data", updated);
                     response.put("message", "Stock updated successfully.");
                     return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> {
+                    Map<String, Object> response = new HashMap<>();
                     response.put("success", false);
                     response.put("error", "Stock not found.");
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -88,14 +95,8 @@ public class StocksController {
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
 
-        if (!svc.getById(id).isPresent()) {
-            response.put("success", false);
-            response.put("error", "Stock not found.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-
         try {
-            svc.delete(id);
+            stockService.delete(id);
             response.put("success", true);
             response.put("message", "Stock deleted successfully.");
             return ResponseEntity.ok(response);
@@ -104,11 +105,6 @@ public class StocksController {
             response.put("success", false);
             response.put("error", ex.getMessage());
             return ResponseEntity.badRequest().body(response);
-
-        } catch (EntityNotFoundException ex) {
-            response.put("success", false);
-            response.put("error", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
         } catch (DataIntegrityViolationException ex) {
             response.put("success", false);

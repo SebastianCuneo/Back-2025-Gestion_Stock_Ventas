@@ -1,7 +1,8 @@
 package uy.edu.ucu.inventario.service;
 
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import uy.edu.ucu.inventario.entity.Brand;
 import uy.edu.ucu.inventario.repository.BrandRepository;
 import uy.edu.ucu.inventario.repository.ProductRepository;
@@ -15,35 +16,47 @@ import java.util.Optional;
 @Service
 public class BrandService {
 
-    private final BrandRepository repo;
-    private final ProductRepository productRepo;
+    private final BrandRepository brandRepository;
+    private final ProductRepository productRepository;
     private final AuditLogService auditLogService;
 
-    public BrandService(BrandRepository repo, ProductRepository productRepo, AuditLogService auditLogService) {
-        this.repo = repo;
-        this.productRepo = productRepo;
+    public BrandService(BrandRepository brandRepository, ProductRepository productRepository, AuditLogService auditLogService) {
+        this.brandRepository = brandRepository;
+        this.productRepository = productRepository;
         this.auditLogService = auditLogService;
     }
 
     public List<Brand> listAll() {
-        return repo.findAll();
+        return brandRepository.findAll();
     }
 
     public Optional<Brand> getById(Long id) {
-        return repo.findById(id);
+        return brandRepository.findById(id);
     }
 
     public Brand save(Brand brand) {
-        boolean isCreate = (brand.getId() == null);
-        if (isCreate) {
+        boolean isNew = (brand.getId() == null);
+
+        // Validación de campos obligatorios
+        if (brand.getName() == null || brand.getName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Brand name is required.");
+        }
+
+        // Validación: no permitir crear si ya existe una con el mismo nombre
+        if (isNew && brandRepository.findByNameIgnoreCase(brand.getName()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A brand with the name '" + brand.getName() + "' already exists.");
+        }
+
+        if (isNew) {
             brand.setAssociatedProductCount(0); // Inicializamos contador si es nuevo
         }
-        Brand saved = repo.save(brand);
+
+        Brand saved = brandRepository.save(brand);
 
         auditLogService.saveLog(
                 "Brand",
                 saved.getId(),
-                isCreate ? "CREATE" : "UPDATE",
+                isNew ? "CREATE" : "UPDATE",
                 "Brand name: " + saved.getName()
         );
 
@@ -51,14 +64,15 @@ public class BrandService {
     }
 
     public void delete(Long id) {
-        if (productRepo.existsByBrandId(id)) {
-            throw new IllegalStateException("Cannot delete brand because it has associated products.");
-        }
-        if (!repo.existsById(id)) {
-            throw new EntityNotFoundException("Brand with id " + id + " not found.");
+        if (!brandRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Brand with id " + id + " not found.");
         }
 
-        repo.deleteById(id);
+        if (productRepository.existsByBrandId(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot delete brand because it has associated products.");
+        }
+
+        brandRepository.deleteById(id);
 
         auditLogService.saveLog(
                 "Brand",
@@ -70,12 +84,11 @@ public class BrandService {
 
     public void incrementProductCount(Brand brand) {
         brand.incrementAssociatedProductCount();
-        System.out.println("-BRAND SERVICE- "+brand);
-        repo.save(brand);
+        brandRepository.save(brand);
     }
 
     public void decrementProductCount(Brand brand) {
         brand.decrementAssociatedProductCount();
-        repo.save(brand);
+        brandRepository.save(brand);
     }
 }

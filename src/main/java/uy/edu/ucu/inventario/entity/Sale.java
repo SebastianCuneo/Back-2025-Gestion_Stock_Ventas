@@ -1,10 +1,22 @@
 package uy.edu.ucu.inventario.entity;
 
-import jakarta.persistence.*;
-import uy.edu.ucu.inventario.enums.PaymentMethod;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import uy.edu.ucu.inventario.enums.PaymentMethod;
 
 /**
  * Entity representing a sale.
@@ -30,16 +42,27 @@ public class Sale {
     @Column(length = 100)
     private String reseller; // Optional
 
+    @ManyToMany
+    @JoinTable(
+        name = "sale_products",
+        joinColumns = @JoinColumn(name = "sale_id"),
+        inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    private List<Product> products;
+
+    @Transient
+    private Long totalCount;
+
     // === Constructors ===
 
-    public Sale() {
-    }
+    public Sale() {}
 
-    public Sale(LocalDateTime date, BigDecimal total, PaymentMethod paymentMethod, String reseller) {
+    public Sale(LocalDateTime date, BigDecimal total, PaymentMethod paymentMethod, String reseller, List<Product> products) {
         this.date = date;
         this.total = total;
         this.paymentMethod = paymentMethod;
         this.reseller = reseller;
+        this.products = products;
     }
 
     // === Getters and Setters ===
@@ -82,5 +105,21 @@ public class Sale {
 
     public void setReseller(String reseller) {
         this.reseller = reseller;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
+
+    public Long getTotalCount() {
+        return totalCount;
+    }
+
+    public void setTotalCount(Long totalCount) {
+        this.totalCount = totalCount;
     }
 }

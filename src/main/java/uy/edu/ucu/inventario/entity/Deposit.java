@@ -1,6 +1,13 @@
 package uy.edu.ucu.inventario.entity;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /**
  * Entity representing a deposit (warehouse).
@@ -25,15 +32,22 @@ public class Deposit {
     @Column(length = 255)
     private String description;
 
+    @Column(nullable = false)
+    private int productCount = 0;
+
+    @Column(name = "associated_date", nullable = false)
+    private LocalDateTime associatedDate;
+
     // === Constructors ===
 
-    public Deposit() {
-    }
+    public Deposit() {}
 
-    public Deposit(String name, String location, String description) {
+    public Deposit(String name, String location, String description, int productCount, LocalDateTime associatedDate) {
         this.name = name;
         this.location = location;
         this.description = description;
+        this.productCount = productCount;
+        this.associatedDate = associatedDate;
     }
 
     // === Getters & Setters ===
@@ -68,5 +82,21 @@ public class Deposit {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getProductCount() {
+        return productCount;
+    }
+
+    public void setProductCount(int productCount) {
+        this.productCount = productCount;
+    }
+
+    public LocalDateTime getAssociatedDate() {
+        return associatedDate;
+    }
+
+    public void setAssociatedDate(LocalDateTime associatedDate) {
+        this.associatedDate = associatedDate;
     }
 }

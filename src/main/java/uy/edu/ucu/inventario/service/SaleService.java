@@ -1,9 +1,11 @@
 package uy.edu.ucu.inventario.service;
 
+import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.entity.Sale;
 import uy.edu.ucu.inventario.repository.SaleRepository;
-import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,48 +16,59 @@ import java.util.Optional;
 @Service
 public class SaleService {
 
-    private final SaleRepository repo;
+    private final SaleRepository saleRepository;
     private final AuditLogService auditLogService;
 
-    public SaleService(SaleRepository repo, AuditLogService auditLogService) {
-        this.repo = repo;
+    public SaleService(SaleRepository saleRepository, AuditLogService auditLogService) {
+        this.saleRepository = saleRepository;
         this.auditLogService = auditLogService;
     }
 
     public List<Sale> listAll() {
-        return repo.findAll();
+        return saleRepository.findAll();
+    }
+
+    public long getTotalCount() {
+        return saleRepository.count();
     }
 
     public Optional<Sale> getById(Long id) {
-        return repo.findById(id);
+        return saleRepository.findById(id);
     }
 
     public Sale save(Sale sale) {
         boolean isNew = (sale.getId() == null);
-        Sale saved = repo.save(sale);
+
+        // Validación: debe tener al menos un producto
+        List<Product> products = sale.getProducts();
+        if (products == null || products.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sale must include at least one product.");
+        }
+
+        Sale saved = saleRepository.save(sale);
 
         auditLogService.saveLog(
             "Sale",
             saved.getId(),
             isNew ? "CREATE" : "UPDATE",
-            null
+            "Products: " + products.size()
         );
 
         return saved;
     }
 
     public void delete(Long id) {
-        if (!repo.existsById(id)) {
-            throw new EntityNotFoundException("Sale with id " + id + " not found");
+        if (!saleRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sale with id " + id + " not found");
         }
 
-        repo.deleteById(id);
+        saleRepository.deleteById(id);
 
         auditLogService.saveLog(
             "Sale",
             id,
             "DELETE",
-            null
+            "Sale deleted with id: " + id
         );
     }
 }
