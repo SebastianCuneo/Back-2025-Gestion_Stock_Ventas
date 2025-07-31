@@ -24,7 +24,7 @@ import uy.edu.ucu.inventario.service.SaleService;
  * REST Controller for the Sale entity.
  */
 @RestController
-@RequestMapping("/api/sale")
+@RequestMapping("/api/sales")
 public class SaleController {
 
     private final SaleService saleService;

@@ -22,7 +22,7 @@ import uy.edu.ucu.inventario.entity.Product.MonetaryValue;
 import uy.edu.ucu.inventario.service.ProductService;
 
 @RestController
-@RequestMapping("/api/product")
+@RequestMapping("/api/products")
 public class ProductController {
 
     private final ProductService productService;
