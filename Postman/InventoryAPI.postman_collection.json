@@ -5,7 +5,7 @@
 		"description": "Colección CRUD completa para todas las entidades",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "47005559",
-		"_collection_link": "https://security-astronomer-19967534-9519197.postman.co/workspace/1356592e-b50a-423d-8dcf-085cae039fe2/collection/47005559-1112cef3-8eac-49ff-a29f-2c1fc7a2028e?action=share&source=collection_link&creator=47005559"
+		"_collection_link": "https://security-astronomer-19967534-9519197.postman.co/workspace/Sebastian-Cuneo's-Workspace~1356592e-b50a-423d-8dcf-085cae039fe2/collection/47005559-1112cef3-8eac-49ff-a29f-2c1fc7a2028e?action=share&source=collection_link&creator=47005559"
 	},
 	"item": [
 		{
@@ -1121,6 +1121,14 @@
 						"audit-log"
 					]
 				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
 			},
 			"response": []
 		}
