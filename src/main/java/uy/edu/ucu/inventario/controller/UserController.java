@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
@@ -56,7 +56,7 @@ public class UserController {
                 });
     }
 
-    @PostMapping
+    @PostMapping("/signup")
     public ResponseEntity<Map<String, Object>> create(@RequestBody User user) {
         User saved = userService.save(user);
         Map<String, Object> response = new HashMap<>();
