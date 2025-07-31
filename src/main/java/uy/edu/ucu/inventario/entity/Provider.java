@@ -1,6 +1,8 @@
 package uy.edu.ucu.inventario.entity;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -33,12 +35,12 @@ public class Provider {
 
     public Provider() {}
 
-    public Provider(String name, String email, String phone, String address, LocalDateTime associatedDate) {
+    public Provider(String name, String email, String phone, String address) {
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.address = address;
-        this.associatedDate = associatedDate;
+        this.associatedDate = LocalDateTime.now();
     }
 
     // === Getters & Setters ===
