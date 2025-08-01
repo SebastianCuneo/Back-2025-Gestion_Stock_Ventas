@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface SecurityUserRepository extends JpaRepository<UserEntity, Long> {
 
-    @Query(value = "SELECT * FROM user WHERE email = :email", nativeQuery = true)
+    @Query(value = "SELECT * FROM users WHERE email = :email", nativeQuery = true)
     Optional<UserEntity> findByEmail(String email);
 }

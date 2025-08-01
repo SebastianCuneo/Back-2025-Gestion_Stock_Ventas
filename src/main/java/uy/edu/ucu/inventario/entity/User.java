@@ -6,7 +6,7 @@ import jakarta.persistence.*;
  * Entity representing a user of the system.
  */
 @Entity
-@Table(name = "users")
+@Table(name = "ussario")
 public class User {
 
     // === Attributes ===
