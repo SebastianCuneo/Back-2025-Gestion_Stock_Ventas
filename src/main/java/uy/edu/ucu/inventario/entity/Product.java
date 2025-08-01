@@ -56,6 +56,7 @@ public class Product {
         public void setValue(BigDecimal value) {
             this.value = value;
         }
+        
     }
 
     // === Attributes ===
@@ -202,13 +203,17 @@ public class Product {
         this.deposits = deposits;
     }
     
-    // Método para manejar la adición de un depósito
     public void addDeposit(Deposit deposit) {
-        this.deposits.add(deposit);
+        if (this.deposits.add(deposit)) {
+            // Solo incrementa si el depósito no estaba en la lista
+            this.depositsCount++;
+        }
     }
 
-    // Método para manejar la eliminación de un depósito
     public void removeDeposit(Deposit deposit) {
-        this.deposits.remove(deposit);
+        if (this.deposits.remove(deposit)) {
+            // Solo decrementa si el depósito existía
+            this.depositsCount--;
+        }
     }
 }

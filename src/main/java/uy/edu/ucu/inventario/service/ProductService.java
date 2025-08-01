@@ -1,20 +1,20 @@
 package uy.edu.ucu.inventario.service;
 
-import uy.edu.ucu.inventario.entity.Product;
-import uy.edu.ucu.inventario.entity.Brand;
-import uy.edu.ucu.inventario.entity.Category;
-import uy.edu.ucu.inventario.entity.Deposit;
-import uy.edu.ucu.inventario.repository.ProductRepository;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import uy.edu.ucu.inventario.entity.Brand;
+import uy.edu.ucu.inventario.entity.Category;
+import uy.edu.ucu.inventario.entity.Deposit;
+import uy.edu.ucu.inventario.entity.Product;
+import uy.edu.ucu.inventario.repository.ProductRepository;
 
 /**
  * Service for managing products.
@@ -108,6 +108,7 @@ public class ProductService {
         );
 
         return saved;
+        }
     }
 
     public void delete(Long id) {
