@@ -3,6 +3,7 @@ package uy.edu.ucu.inventario.service;
 import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.entity.Brand;
 import uy.edu.ucu.inventario.entity.Category;
+import uy.edu.ucu.inventario.entity.Deposit;
 import uy.edu.ucu.inventario.repository.ProductRepository;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -10,8 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service for managing products.
@@ -24,17 +27,20 @@ public class ProductService {
     private final AuditLogService auditLogService;
     private final BrandService brandService;
     private final CategoryService categoryService;
+    private final DepositService depositService;
 
     public ProductService(
         ProductRepository productRepository,
         AuditLogService auditLogService,
         BrandService brandService,
-        CategoryService categoryService
+        CategoryService categoryService,
+        DepositService depositService
     ) {
         this.productRepository = productRepository;
         this.auditLogService = auditLogService;
         this.brandService = brandService;
         this.categoryService = categoryService;
+        this.depositService = depositService;
     }
 
     public List<Product> listAll() {
@@ -65,7 +71,23 @@ public class ProductService {
         if (isNew && productRepository.findByNameIgnoreCase(product.getName()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Product with name '" + product.getName() + "' already exists.");
         }
+     // Lógica para manejar los depósitos al crear el producto
+        if (isNew && product.getDeposits() != null && !product.getDeposits().isEmpty()) {
 
+            // Creamos una nueva lista para los depósitos completos
+            Set<Deposit> fetchedDeposits = new HashSet<>();
+
+            for (Deposit depositFromRequest : product.getDeposits()) {
+                // Buscamos el depósito completo en la base de datos
+                depositService.getById(depositFromRequest.getId()).ifPresent(
+                    fetchedDeposits::add
+                );
+            }
+
+            // Asignamos la lista completa de depósitos al producto
+            product.setDeposits(fetchedDeposits);
+            // Sincronizamos el contador
+            product.setDepositsCount(fetchedDeposits.size());
         Product saved = productRepository.save(product);
 
         if (isNew) {
