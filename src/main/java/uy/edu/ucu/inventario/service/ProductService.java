@@ -88,6 +88,7 @@ public class ProductService {
             product.setDeposits(fetchedDeposits);
             // Sincronizamos el contador
             product.setDepositsCount(fetchedDeposits.size());
+        }
         Product saved = productRepository.save(product);
 
         if (isNew) {
@@ -108,8 +109,8 @@ public class ProductService {
         );
 
         return saved;
-        }
-    }
+       }
+    
 
     public void delete(Long id) {
         Product product = productRepository.findById(id).orElseThrow(() ->
