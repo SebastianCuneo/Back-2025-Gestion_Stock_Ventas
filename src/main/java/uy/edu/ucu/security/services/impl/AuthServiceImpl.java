@@ -56,17 +56,11 @@ public class AuthServiceImpl implements IAuthService {
     public ResponseDTO register(UserEntity user) throws Exception {
         try {
             ResponseDTO response = userValidations.validate(user);
-            List<UserEntity> getAllUsers = securityUserRepository.findAll();
+            if (response.getNumOfErrors() > 0) return response;
 
-            if (response.getNumOfErrors() > 0){
+            if (securityUserRepository.findByEmail(user.getEmail()).isPresent()) {
+                response.setMessage("User already exists!");
                 return response;
-            }
-
-            for (UserEntity repeatFields : getAllUsers) {
-                if (repeatFields != null) {
-                    response.setMessage("User already exists!");
-                    return response;
-                }
             }
 
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
