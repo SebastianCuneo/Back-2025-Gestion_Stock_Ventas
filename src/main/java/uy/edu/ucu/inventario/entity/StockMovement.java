@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import uy.edu.ucu.inventario.enums.MovementType;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Entity representing a stock movement (entry, exit or transfer).
@@ -41,6 +42,18 @@ public class StockMovement {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    // Método que se ejecuta justo antes de guardar la entidad por primera vez
+    @PrePersist
+    protected void onCreate() {
+        this.date = LocalDate.now();
+    }
+    
+    // Método que se ejecuta justo antes de actualizar la entidad
+    @PreUpdate
+    protected void onUpdate() {
+        this.date = LocalDate.now();
+    
 
     // === Constructors ===
 
