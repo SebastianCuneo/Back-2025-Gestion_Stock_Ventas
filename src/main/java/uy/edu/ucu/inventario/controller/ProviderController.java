@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -116,7 +117,7 @@ public class ProviderController {
         map.put("email", provider.getEmail());
         map.put("phone", provider.getPhone());
         map.put("address", provider.getAddress());
-        map.put("associatedDate", provider.getAssociatedDate());
+        map.put("associatedDate", provider.getDate());
         return map;
     }
 }

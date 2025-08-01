@@ -32,7 +32,7 @@ public class Sale {
     @Column(nullable = false)
     private LocalDateTime date;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private BigDecimal total;
 
     @Enumerated(EnumType.STRING)

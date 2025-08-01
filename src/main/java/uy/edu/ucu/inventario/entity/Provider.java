@@ -28,8 +28,8 @@ public class Provider {
     @Column(length = 255)
     private String address;
 
-    @Column(name = "associated_date", nullable = false)
-    private LocalDateTime associatedDate;
+    @Column(nullable = false)
+    private LocalDate date;
 
     // === Constructors ===
 
@@ -40,7 +40,7 @@ public class Provider {
         this.email = email;
         this.phone = phone;
         this.address = address;
-        this.associatedDate = LocalDateTime.now();
+        this.date = LocalDate.now();
     }
 
     // === Getters & Setters ===
@@ -85,11 +85,13 @@ public class Provider {
         this.address = address;
     }
 
-    public LocalDateTime getAssociatedDate() {
-        return associatedDate;
-    }
 
-    public void setAssociatedDate(LocalDateTime associatedDate) {
-        this.associatedDate = associatedDate;
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+    
+ // Código corregido (getter correcto):
+    public LocalDate getDate() {
+        return this.date;
     }
 }
