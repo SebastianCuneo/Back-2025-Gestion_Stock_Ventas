@@ -73,6 +73,12 @@ public class ProviderController {
         return providerService.getById(id)
                 .map(existing -> {
                     provider.setId(id);
+                 // Copia los valores del nuevo objeto al existente
+                    existing.setName(provider.getName());
+                    existing.setEmail(provider.getEmail());
+                    existing.setPhone(provider.getPhone());
+                    existing.setAddress(provider.getAddress());
+                    
                     Provider updated = providerService.save(provider);
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
