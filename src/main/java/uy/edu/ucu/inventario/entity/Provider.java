@@ -31,6 +31,18 @@ public class Provider {
     @Column(nullable = false)
     private LocalDate associated_date;
     
+    // Método que se ejecuta justo antes de guardar la entidad por primera vez
+    @PrePersist
+    protected void onCreate() {
+        this.associated_date = LocalDate.now();
+    }
+    
+    // Método que se ejecuta justo antes de actualizar la entidad
+    @PreUpdate
+    protected void onUpdate() {
+        this.associated_date = LocalDate.now();
+    }
+    
 
     // === Constructors ===
 
