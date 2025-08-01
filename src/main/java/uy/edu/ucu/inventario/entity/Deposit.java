@@ -1,5 +1,6 @@
 package uy.edu.ucu.inventario.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -7,6 +8,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 /**
@@ -38,6 +41,17 @@ public class Deposit {
     @Column(name = "associated_date", nullable = false)
     private LocalDateTime associatedDate;
 
+    // Método que se ejecuta justo antes de guardar la entidad por primera vez
+    @PrePersist
+    protected void onCreate() {
+        this.associatedDate = LocalDateTime.now();
+    }
+    
+    // Método que se ejecuta justo antes de actualizar la entidad
+    @PreUpdate
+    protected void onUpdate() {
+        this.associatedDate = LocalDateTime.now();
+    }
     // === Constructors ===
 
     public Deposit() {}
