@@ -15,6 +15,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import uy.edu.ucu.inventario.enums.PaymentMethod;
@@ -43,7 +45,17 @@ public class Sale {
     @Column(length = 100)
     private String reseller; // Optional
     
-
+    // Método que se ejecuta justo antes de guardar la entidad por primera vez
+    @PrePersist
+    protected void onCreate() {
+        this.date = LocalDateTime.now();
+    }
+    
+    // Método que se ejecuta justo antes de actualizar la entidad
+    @PreUpdate
+    protected void onUpdate() {
+        this.date = LocalDateTime.now();
+    }
 
 
     @ManyToMany
