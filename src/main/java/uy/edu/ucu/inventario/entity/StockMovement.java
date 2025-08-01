@@ -53,7 +53,7 @@ public class StockMovement {
     @PreUpdate
     protected void onUpdate() {
         this.date = LocalDate.now();
-    
+    }
 
     // === Constructors ===
 
