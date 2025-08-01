@@ -1,6 +1,7 @@
 package uy.edu.ucu.inventario.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class Sale {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime date;
 
     @Column(nullable = true)
@@ -41,6 +42,9 @@ public class Sale {
 
     @Column(length = 100)
     private String reseller; // Optional
+    
+
+
 
     @ManyToMany
     @JoinTable(

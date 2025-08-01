@@ -29,7 +29,8 @@ public class Provider {
     private String address;
 
     @Column(nullable = false)
-    private LocalDate date;
+    private LocalDate associated_date;
+    
 
     // === Constructors ===
 
@@ -40,7 +41,7 @@ public class Provider {
         this.email = email;
         this.phone = phone;
         this.address = address;
-        this.date = LocalDate.now();
+        this.associated_date = LocalDate.now();
     }
 
     // === Getters & Setters ===
@@ -87,11 +88,11 @@ public class Provider {
 
 
     public void setDate(LocalDate date) {
-        this.date = date;
+        this.associated_date = date;
     }
     
  // Código corregido (getter correcto):
     public LocalDate getDate() {
-        return this.date;
+        return this.associated_date;
     }
 }
