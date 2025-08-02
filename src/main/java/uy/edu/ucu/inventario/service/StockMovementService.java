@@ -7,8 +7,11 @@ import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.entity.Stock;
 import uy.edu.ucu.inventario.entity.StockMovement;
 import uy.edu.ucu.inventario.enums.MovementType;
+import uy.edu.ucu.inventario.repository.DepositRepository;
+import uy.edu.ucu.inventario.repository.ProductRepository;
 import uy.edu.ucu.inventario.repository.StockMovementRepository;
 import uy.edu.ucu.inventario.repository.StockRepository;
+import uy.edu.ucu.inventario.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,16 +23,26 @@ public class StockMovementService {
     private final AuditLogService auditLogService;
     private final StockRepository stockRepository;
     private final ProductService productService;
+    private final ProductRepository productRepository;
+    private final DepositRepository depositRepository;
+    private final UserRepository userRepository;
 
     public StockMovementService(
             StockMovementRepository stockMovementRepository,
             AuditLogService auditLogService,
             StockRepository stockRepository,
-            ProductService productService) {
+            ProductService productService,
+            ProductRepository productRepository,
+            DepositRepository depositRepository,
+            UserRepository userRepository
+            ) {
         this.stockMovementRepository = stockMovementRepository;
         this.auditLogService = auditLogService;
         this.stockRepository = stockRepository;
         this.productService = productService;
+        this.productRepository = productRepository;
+        this.depositRepository = depositRepository;
+        this.userRepository = userRepository;
     }
 
     public List<StockMovement> listAll() {
