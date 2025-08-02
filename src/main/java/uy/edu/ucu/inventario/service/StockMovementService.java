@@ -3,9 +3,12 @@ package uy.edu.ucu.inventario.service;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import uy.edu.ucu.inventario.entity.Deposit;
 import uy.edu.ucu.inventario.entity.Product;
 import uy.edu.ucu.inventario.entity.Stock;
 import uy.edu.ucu.inventario.entity.StockMovement;
+import uy.edu.ucu.inventario.entity.User;
 import uy.edu.ucu.inventario.enums.MovementType;
 import uy.edu.ucu.inventario.repository.DepositRepository;
 import uy.edu.ucu.inventario.repository.ProductRepository;
@@ -56,6 +59,38 @@ public class StockMovementService {
     public StockMovement save(StockMovement movement) {
         boolean isNew = (movement.getId() == null);
 
+        
+        // --- Búsqueda y carga de entidades completas ---
+        if (movement.getProduct() != null && movement.getProduct().getId() != null) {
+            Product product = productRepository.findById(movement.getProduct().getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found."));
+            movement.setProduct(product);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product must not be null.");
+        }
+
+        if (movement.getUser() != null && movement.getUser().getId() != null) {
+            User user = userRepository.findById(movement.getUser().getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+            movement.setUser(user);
+        } else {
+             // Lanza excepción o gestiona si el usuario es obligatorio.
+             // throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User must not be null.");
+        }
+
+        if (movement.getOriginDeposit() != null && movement.getOriginDeposit().getId() != null) {
+            Deposit originDeposit = depositRepository.findById(movement.getOriginDeposit().getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Origin deposit not found."));
+            movement.setOriginDeposit(originDeposit);
+        }
+
+        if (movement.getDestinationDeposit() != null && movement.getDestinationDeposit().getId() != null) {
+            Deposit destinationDeposit = depositRepository.findById(movement.getDestinationDeposit().getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Destination deposit not found."));
+            movement.setDestinationDeposit(destinationDeposit);
+        }
+        // ----------------------------------------------------
+        
         // Validaciones
         if (movement.getProduct() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product must not be null.");
@@ -65,6 +100,10 @@ public class StockMovementService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Movement type must not be null.");
         }
 
+        
+        
+        
+        
         switch (movement.getType()) {
             case ENTRY -> {
                 if (movement.getDestinationDeposit() == null) {
