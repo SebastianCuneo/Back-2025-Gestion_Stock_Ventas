@@ -166,6 +166,12 @@ public class StockMovementController {
             destination.put("name", m.getDestinationDeposit().getName());
             map.put("destinationDeposit", destination);
         }
+        if (m.getUser() != null) {
+            Map<String, Object> userDetails = new HashMap<>();
+            userDetails.put("id", m.getUser().getId());
+            userDetails.put("name", m.getUser().getFirstName());
+            userDetails.put("user", userDetails);
+        }
 
         return map;
     }
