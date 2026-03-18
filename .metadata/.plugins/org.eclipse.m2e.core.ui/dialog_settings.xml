@@ -2,6 +2,7 @@
 <section name="Workbench">
 	<section name="MavenProjectImportWizardPage">
 		<list key="rootDirectory">
+			<item value="/Users/seba/UCU/Back-2025-Gestion_Stock_Ventas"/>
 			<item value="C:\UCU\Back-2025-Gestion_Stock_Ventas"/>
 		</list>
 		<list key="projectNameTemplate">
