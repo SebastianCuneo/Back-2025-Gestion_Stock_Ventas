@@ -59,6 +59,7 @@ public class AuthServiceImpl implements IAuthService {
             if (response.getNumOfErrors() > 0) return response;
 
             if (securityUserRepository.findByEmail(user.getEmail()).isPresent()) {
+                response.setNumOfErrors(1);
                 response.setMessage("User already exists!");
                 return response;
             }
@@ -66,6 +67,7 @@ public class AuthServiceImpl implements IAuthService {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
             user.setPassword(encoder.encode(user.getPassword()));
             securityUserRepository.save(user);
+            response.setNumOfErrors(0);
             response.setMessage("User created successfully!");
             return response;
         } catch (Exception e) {

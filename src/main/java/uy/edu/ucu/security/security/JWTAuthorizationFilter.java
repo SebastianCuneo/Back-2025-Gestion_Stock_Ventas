@@ -29,6 +29,17 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // No validar JWT en rutas públicas: si el cliente envía Bearer inválido/expirado, igual debe llegar a /auth/*
+        String path = request.getRequestURI();
+        String contextPath = request.getContextPath();
+        if (contextPath != null && !contextPath.isEmpty() && path.startsWith(contextPath)) {
+            path = path.substring(contextPath.length());
+        }
+        if (path.startsWith("/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader("Authorization");
 
         if (header == null || !header.startsWith("Bearer ")) {
